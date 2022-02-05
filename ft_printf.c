@@ -6,7 +6,7 @@
 /*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/02/04 12:22:26 by katarinka        ###   ########.fr       */
+/*   Updated: 2022/02/05 19:44:16 by katarinka        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,20 +34,21 @@ int	is_conversion(char c)
 		return (0);
 }
 
-int	conversion_solver(const char *format, va_list *ap)
+int	conversion_solver(const char *format, va_list *ap, char *final_str)
 {
 	int		i;
 	char	conversion;
 
-	i = 0; // should I skip the " in the beginning? start at 1?
+	i = 1;
 	while (format[i] && !is_conversion(format[i]))
 	{
 		//deal with the flags somewhere
 		i++;
 	}
+	conversion = format[i];
 	if (conversion == 'c')
-		return (conv_c());
-	if (conversion == 's')
+		return (conv_c(ap, final_str));
+/* 	if (conversion == 's')
 		return (conv_s());
 	if (conversion == 'p')
 		return (conv_p());
@@ -64,13 +65,22 @@ int	conversion_solver(const char *format, va_list *ap)
 	if (conversion == 'X')
 		return (conv_X());
 	if (conversion == 'f')
-		return (conv_f());
+		return (conv_f()); */
 	return (0);
+}
+
+int	conv_c(va_list *ap, char *final_str)
+{
+	char	c;
+
+	c = ap;
+	final_str = ft_strcharjoin(final_str, c);
+	return(1);	
 }
 
 int ft_printf(const char *format, ...)
 {
-	va_list ap;
+	va_list	ap;
 	int		char_counter;
 	int		i;
 	char	*final_str;
@@ -82,8 +92,7 @@ int ft_printf(const char *format, ...)
 	while (format[i])
 	{
 		if (format[i] == '%')
-			//conversion handler -- maybe a separate function for that
-			char_counter += conversion_solver(&format, &ap);
+			char_counter += conversion_solver(&format[i], &ap, &final_str);
 		else
 		{
 			//just add the printable character as received to the previously saved string of chars to be printed - 
