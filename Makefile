@@ -6,13 +6,13 @@
 #    By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/02/03 13:55:36 by kslotova          #+#    #+#              #
-#    Updated: 2022/02/03 18:03:38 by katarinka        ###   ########.fr        #
+#    Updated: 2022/02/07 11:09:05 by katarinka        ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = libftprintf
 
-SOURCES = printf.c ft_strcharjoin.c
+SOURCES = ft_printf.c main.c
 
 OBJECTS = $(SOURCES:.c=.o)
 
@@ -21,7 +21,7 @@ all: $(NAME)
 $(NAME):
 	make -C ./libft
 	gcc -Wall -Wextra -Werror -c $(SOURCES)
-	gcc -o $(NAME) $(OBJECTS) -L./libft -libft
+	gcc -o $(NAME) $(OBJECTS) -L./libft -lft
 
 clean:
 	/bin/rm -f $(OBJECTS)
