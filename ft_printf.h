@@ -6,7 +6,7 @@
 /*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:13:03 by katarinka         #+#    #+#             */
-/*   Updated: 2022/02/08 12:13:37 by katarinka        ###   ########.fr       */
+/*   Updated: 2022/02/11 10:42:08 by katarinka        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@ int 	ft_printf(const char *format, ...);
 int		conv_c(va_list *ap, char *flags_collector);
 int		conv_s(va_list *ap, char *flags_collector);
 int		conv_p(va_list *ap, char *flags_collector);
+int		conv_d_i(va_list *ap, char *flags_collector);
+int		conv_o(va_list *ap, char *flags_collector);
+int		conv_u(va_list *ap, char *flags_collector);
+int		conv_x(va_list *ap, char *flags_collector, char conversion);
 int		conversion_solver(const char *format, va_list *ap);
 int		is_conversion(char c);
 int		is_flag(char c);

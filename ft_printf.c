@@ -6,7 +6,7 @@
 /*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/02/08 19:14:37 by katarinka        ###   ########.fr       */
+/*   Updated: 2022/02/11 11:46:40 by katarinka        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,22 +67,22 @@ int	conversion_solver(const char *format, va_list *ap)
 		return (conv_s(ap, flags_collector));
 	if (conversion == 'p')
 		return (conv_p(ap, flags_collector));
-/*	if (conversion == 'd')
-		return (conv_d());
-	if (conversion == 'i')
-		return (conv_i());
+	if (conversion == 'd' || conversion == 'i')
+		return (conv_d_i(ap, flags_collector));
 	if (conversion == 'o')
-		return (conv_o());
+		return (conv_o(ap, flags_collector));
 	if (conversion == 'u')
-		return (conv_u());
-	if (conversion == 'x')
-		return (conv_x());
-	if (conversion == 'X')
-		return (conv_X());
+		return (conv_u(ap, flags_collector));
+	if (conversion == 'x' || conversion == 'X')
+		return (conv_x(ap, flags_collector, conversion));
+/*	if (conversion == 'X')
+		return (conv_X(ap, flags_collector));
 	if (conversion == 'f')
-		return (conv_f()); */
+		return (conv_f(ap, flags_collector)); */
 	return (0);
 }
+
+////////////////////////////////////////////CONV_C////////////////////////////////////////////////////////////////
 
 int	conv_c(va_list *ap, char *flags_collector)
 {
@@ -94,6 +94,8 @@ int	conv_c(va_list *ap, char *flags_collector)
 	ft_putchar(c);
 	return(1);
 }
+
+////////////////////////////////////////////CONV_S////////////////////////////////////////////////////////////////
 
 int	conv_s(va_list *ap, char *flags_collector)
 {
@@ -113,6 +115,8 @@ int	conv_s(va_list *ap, char *flags_collector)
 	free(print_str);
 	return(len);
 }
+
+////////////////////////////////////////////CONV_P////////////////////////////////////////////////////////////////
 
 int	ft_ptrlen(uintptr_t print_ptr)
 {
@@ -181,10 +185,251 @@ int	conv_p(va_list *ap, char *flags_collector)
 	return(len);
 }
 
+////////////////////////////////////////////CONV_D_I////////////////////////////////////////////////////////////////
+
+int	ft_numlen_dibase(long num, int base)
+{
+	int	len;
+	
+	len = 0;
+	if (num < 0)
+		len++;
+	while (num)
+	{
+		num = num / base;
+		len++;
+	}
+	return (len);
+}
+
+char	ft_base(long num, int base)
+{
+	char	*max_base_chars;
+	int		i;
+
+	max_base_chars = "0123456789";
+	i = num % base;
+	if (i < 0)
+		i = i * -1;
+	return (max_base_chars[i]);
+}
+
+char	*ft_itoa_dibase(long num, int base)
+{
+	char	*str;
+	int		i;
+
+	if (base < 2 || base > 16)
+		return (NULL);
+	i = ft_numlen_dibase(num, base);
+	str = ft_strnew(i);
+	if (!str)
+		return (NULL);
+	if (num < 0)
+		str[0] = '-';
+	str[i--] = '\0';
+	while (i >= 0 && str[i] != '-')
+	{
+		str[i] = ft_base(num, base);
+		num = num / base;
+		i--;
+	}
+	return (str);
+}
+
+int	conv_d_i(va_list *ap, char *flags_collector)
+{
+	char	*print_num;
+	int		check_num;
+	int		len;
+
+	len = 0;
+	check_num = va_arg(*ap, int);
+	print_num = ft_itoa_dibase(check_num, 10);
+	ft_putstr(print_num);
+	len = ft_strlen(print_num);
+	free(print_num);
+	return (len);
+}
+
+////////////////////////////////////////////CONV_O////////////////////////////////////////////////////////////////
+
+int	ft_numlen_base_u(unsigned int num, int base)
+{
+	int	len;
+	
+	len = 0;
+	while (num)
+	{
+		num = num / base;
+		len++;
+	}
+	return (len);
+}
+
+char	ft_base_u(unsigned int num, int base)
+{
+	char	*max_base_chars;
+	int		i;
+
+	max_base_chars = "0123456789";
+	i = num % base;
+	return (max_base_chars[i]);
+}
+
+char	*ft_itoa_base_u(unsigned int num, int base)
+{
+	char	*str;
+	int		i;
+
+	if (base < 2 || base > 16)
+		return (NULL);
+	i = ft_numlen_base_u(num, base);
+	str = ft_strnew(i);
+	if (!str)
+		return (NULL);
+	str[i--] = '\0';
+	while (i >= 0 && str[i] != '-')
+	{
+		str[i] = ft_base_u(num, base);
+		num = num / base;
+		i--;
+	}
+	return (str);
+}
+
+int	conv_o(va_list *ap, char *flags_collector)
+{
+	char	*print_num;
+	int		check_num;
+	int		len;
+
+	len = 0;
+	check_num = va_arg(*ap, unsigned int);
+	print_num = ft_itoa_base_u(check_num, 8);
+	ft_putstr(print_num);
+	len = ft_strlen(print_num);
+	free(print_num);
+	return (len);
+}
+
+////////////////////////////////////////////CONV_U////////////////////////////////////////////////////////////////
+
+char	*ft_itoa_dbase_u(unsigned int num, int base)
+{
+	char	*str;
+	int		i;
+
+	if (base < 2 || base > 16)
+		return (NULL);
+	i = ft_numlen_base_u(num, base);
+	str = ft_strnew(i);
+	if (!str)
+		return (NULL);
+	str[i--] = '\0';
+	while (i >= 0 && str[i] != '-')
+	{
+		str[i] = ft_base_u(num, base);
+		num = num / base;
+		i--;
+	}
+	return (str);
+}
+
+int	conv_u(va_list *ap, char *flags_collector)
+{
+	char	*print_num;
+	int		check_num;
+	int		len;
+
+	len = 0;
+	check_num = va_arg(*ap, unsigned int);
+	print_num = ft_itoa_dbase_u(check_num, 10);
+	ft_putstr(print_num);
+	len = ft_strlen(print_num);
+	free(print_num);
+	return (len);
+}
+
+////////////////////////////////////////////CONV_x_X////////////////////////////////////////////////////////////////
+
+char	ft_base_hex(unsigned int num, int base, char conversion)
+{
+	char	*max_base_chars;
+	int		i;
+
+	if (conversion == 'x')
+		max_base_chars = "0123456789abcdef";
+	else
+		max_base_chars = "0123456789ABCDEF";
+	i = num % base;
+	return (max_base_chars[i]);
+}
+
+char	*ft_itoa_hex(unsigned int num, int base, char conversion)
+{
+	char	*str;
+	int		i;
+
+	if (base < 2 || base > 16)
+		return (NULL);
+	i = ft_numlen_base_u(num, base);
+	str = ft_strnew(i);
+	if (!str)
+		return (NULL);
+	str[i--] = '\0';
+	while (i >= 0 && str[i] != '-')
+	{
+		str[i] = ft_base_hex(num, base, conversion);
+		num = num / base;
+		i--;
+	}
+	return (str);
+}
+
+int	conv_x(va_list *ap, char *flags_collector, char conversion)
+{
+	char	*print_num;
+	int		check_num;
+	int		len;
+
+	len = 0;
+	check_num = va_arg(*ap, unsigned int);
+	print_num = ft_itoa_hex(check_num, 16, conversion);
+	ft_putstr(print_num);
+	len = ft_strlen(print_num);
+	free(print_num);
+	return (len);
+}
+
+////////////////////////////////////////////CONV_F////////////////////////////////////////////////////////////////
+
+int	conv_f(va_list *ap, char *flags_collector)
+{
+	char	*print_num;
+	int		check_num;
+	int		len;
+	int		precision;
+
+	len = 0;
+	precision = 6;
+	if (strchr(flags_collector, 'L'))
+		check_num = va_arg(*ap, long double);
+	else
+		check_num = va_arg(*ap, double);
+	print_num = ft_itoa_float(check_num, 16); // write this function
+	ft_putstr(print_num);
+	len = ft_strlen(print_num);
+	free(print_num);
+	return (len);
+}
+
+////////////////////////////////////////////PRINTF////////////////////////////////////////////////////////////////
+
 int	ft_printer(int printed_chars, char c)
 {
 	ft_putchar(c);
-	return (printed_chars + 1);
+	return (printed_chars);
 }
 
 int ft_printf(const char *format, ...)
