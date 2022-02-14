@@ -6,7 +6,7 @@
 /*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/02/11 11:46:40 by katarinka        ###   ########.fr       */
+/*   Updated: 2022/02/14 17:32:13 by katarinka        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,8 @@ int	is_conversion(char c)
 
 int	is_flag(char c)
 {
-	if (c == 'h' || c == 'l' || c == '#' || c == '-' || c == '+' || c == '0' \
-	|| c == '.' || c == ' ' || ft_isdigit(c))
+	if (c == 'h' || c == 'l' || c == 'L' || c == '#' || c == '-' || c == '+' \
+	|| c == '0' || c == '.' || c == ' ' || ft_isdigit(c))
 		return (1);
 	else
 		return (0);
@@ -76,9 +76,9 @@ int	conversion_solver(const char *format, va_list *ap)
 	if (conversion == 'x' || conversion == 'X')
 		return (conv_x(ap, flags_collector, conversion));
 /*	if (conversion == 'X')
-		return (conv_X(ap, flags_collector));
+		return (conv_X(ap, flags_collector)); */
 	if (conversion == 'f')
-		return (conv_f(ap, flags_collector)); */
+		return (conv_f(ap, flags_collector));
 	return (0);
 }
 
@@ -202,7 +202,7 @@ int	ft_numlen_dibase(long num, int base)
 	return (len);
 }
 
-char	ft_base(long num, int base)
+char	ft_base(long int num, int base)
 {
 	char	*max_base_chars;
 	int		i;
@@ -214,7 +214,7 @@ char	ft_base(long num, int base)
 	return (max_base_chars[i]);
 }
 
-char	*ft_itoa_dibase(long num, int base)
+char	*ft_itoa_dibase(long int num, int base)
 {
 	char	*str;
 	int		i;
@@ -243,6 +243,8 @@ int	conv_d_i(va_list *ap, char *flags_collector)
 	int		check_num;
 	int		len;
 
+	if (flags_collector)
+		printf("%s", flags_collector);
 	len = 0;
 	check_num = va_arg(*ap, int);
 	print_num = ft_itoa_dibase(check_num, 10);
@@ -304,6 +306,8 @@ int	conv_o(va_list *ap, char *flags_collector)
 	int		check_num;
 	int		len;
 
+	if (flags_collector)
+		printf("%s", flags_collector);
 	len = 0;
 	check_num = va_arg(*ap, unsigned int);
 	print_num = ft_itoa_base_u(check_num, 8);
@@ -342,6 +346,8 @@ int	conv_u(va_list *ap, char *flags_collector)
 	int		check_num;
 	int		len;
 
+	if (flags_collector)
+		printf("%s", flags_collector);
 	len = 0;
 	check_num = va_arg(*ap, unsigned int);
 	print_num = ft_itoa_dbase_u(check_num, 10);
@@ -393,6 +399,8 @@ int	conv_x(va_list *ap, char *flags_collector, char conversion)
 	int		check_num;
 	int		len;
 
+	if (flags_collector)
+		printf("%s", flags_collector);
 	len = 0;
 	check_num = va_arg(*ap, unsigned int);
 	print_num = ft_itoa_hex(check_num, 16, conversion);
@@ -404,20 +412,121 @@ int	conv_x(va_list *ap, char *flags_collector, char conversion)
 
 ////////////////////////////////////////////CONV_F////////////////////////////////////////////////////////////////
 
+char	*ft_cut_leftover(char *str, int precision)
+{
+	int		i;
+	int		len;
+	char	*final_str;
+
+	i = 0;
+	while (str[i] != '.')
+		i++;
+	len = i + precision + 1;
+	while (str[i] && i < len)
+		i++;
+	final_str = ft_strsub(str, 0, i);
+	free(str);
+	return (final_str);
+}
+
+long double	ft_round(long double check_num, int precision)
+{
+	long double	rounded_num;
+	long double	rounder;
+
+	rounder = .5;
+	while (precision > 0)
+	{
+		rounder = rounder / 10;
+		precision--;
+	}
+	if (check_num >= 0)
+		rounded_num = check_num + rounder;
+	else
+		rounded_num = check_num - rounder;
+	return (rounded_num);
+}
+
+static int	ft_len_double(long n, int precision)
+{
+	int i;
+
+	i = 0;
+	if (n < 0)
+		i++;
+	while (n)
+	{
+		n = n / 10;
+		i++;
+	}
+	return (i + precision + 1);
+}
+
+char	*ft_float_convertor(long double check_num, long int num, int precision)
+{
+	char	*final_str;
+	int		i;
+	int		len;
+
+	i = 1;
+	len = ft_len_double(check_num, precision);
+	final_str = ft_strnew(len);
+	if (!final_str)
+		return (NULL);
+	final_str[0] = '.';
+	if (check_num < 0)
+	{
+		check_num = check_num * -1;
+		num = num * -1;
+	}
+	num = check_num - num;
+	while (i < len)
+	{
+		check_num = check_num * 10;
+		num = check_num;
+		final_str[i] = (num % 10) + '0';
+		i++;
+	}
+	return (final_str);
+}
+
+char	*ft_itoa_float(long double check_num, int precision)
+{
+	char		*before_point;
+	char		*after_point;
+	char		*final_str;
+	long int	num;
+
+	num = check_num;
+	before_point = ft_itoa_dibase(num, 10);
+	after_point = ft_float_convertor(check_num, num, precision);
+	final_str = ft_strjoin(before_point, after_point);
+	free(before_point);
+	free(after_point);
+	return (final_str);
+}
+
 int	conv_f(va_list *ap, char *flags_collector)
 {
-	char	*print_num;
-	int		check_num;
-	int		len;
-	int		precision;
+	char			*print_num;
+	long double		check_num;
+	int				len;
+	int				precision;
 
+	if (flags_collector)
+		printf("%s", flags_collector);
+	if (ft_strchr(flags_collector, '.'))
+		precision = ft_atoi(ft_strchr(flags_collector, '.') + 1);
+	else
+		precision = 6;
 	len = 0;
-	precision = 6;
-	if (strchr(flags_collector, 'L'))
+	if (ft_strchr(flags_collector, 'L'))
 		check_num = va_arg(*ap, long double);
 	else
 		check_num = va_arg(*ap, double);
-	print_num = ft_itoa_float(check_num, 16); // write this function
+	check_num = ft_round(check_num, precision);
+	print_num = ft_itoa_float(check_num, precision);
+	print_num = ft_cut_leftover(print_num, precision);
 	ft_putstr(print_num);
 	len = ft_strlen(print_num);
 	free(print_num);
