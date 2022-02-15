@@ -6,7 +6,7 @@
 /*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/02/14 17:32:13 by katarinka        ###   ########.fr       */
+/*   Updated: 2022/02/15 17:36:09 by katarinka        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,23 +79,169 @@ int	conversion_solver(const char *format, va_list *ap)
 		return (conv_X(ap, flags_collector)); */
 	if (conversion == 'f')
 		return (conv_f(ap, flags_collector));
+	if (conversion == '%')
+		return (conv_percent());
 	return (0);
+}
+
+////////////////////////////////////////////CONV_%////////////////////////////////////////////////////////////////
+
+int	conv_percent()
+{
+	write(1, "%", 1);
+	return (1);
 }
 
 ////////////////////////////////////////////CONV_C////////////////////////////////////////////////////////////////
 
+int	ft_char_width(char c, char *flags, int width)
+{
+	int	total_width;
+ 
+	total_width = width;
+	if (ft_strchr(flags, '-'))
+	{
+		ft_putchar(c);
+		width--;
+		while(width > 0)
+		{
+			ft_putchar(' ');
+			width--;
+		}
+	}
+	else
+	{
+		while(width > 1)
+		{
+			ft_putchar(' ');
+			width--;
+		}
+		ft_putchar(c);
+	}
+	return (total_width);
+}
+
+int	ft_char_manager(char c, char *flags)
+{
+	int	i;
+	int	width;
+
+	i = 0;
+	width = 0;
+	if (flags)
+	{
+		if (ft_strchr("-", flags[i]))
+			i++;
+		if (ft_isdigit(flags[i]))
+			width = ft_atoi(flags + i);
+		return (ft_char_width(c, flags, width));
+	}
+	else
+	{
+		ft_putchar(c);
+		return (1);
+	}
+}
+
 int	conv_c(va_list *ap, char *flags_collector)
 {
 	char	c;
+	char	*actual_flags;
+	int		len;
 	
-	if (flags_collector)
-		printf("%s", flags_collector);
+	len = 0;
 	c = va_arg(*ap, int);
-	ft_putchar(c);
-	return(1);
+	len = ft_char_manager(c, flags_collector);
+	return(len);
 }
 
 ////////////////////////////////////////////CONV_S////////////////////////////////////////////////////////////////
+
+char	*ft_str_width_minus(char *flags, char *str, char *final_str, int empty_spaces)
+{
+	if (ft_strchr(flags, '-'))
+	{
+		final_str = ft_strcpy(final_str, str);
+		while (empty_spaces > 0)
+		{
+			final_str = ft_strjoin(final_str, " ");
+			empty_spaces--;
+		}
+	}
+	else
+	{
+		while (empty_spaces > 0)
+		{
+			final_str = ft_strjoin(final_str, " ");
+			empty_spaces--;
+		}
+		final_str = ft_strjoin(final_str, str);
+	}
+	return (final_str);
+}
+
+char	*ft_str_width(char *str, char *flags, int width)
+{
+	char	*final_str;
+	int		empty_spaces;
+	int		i;
+
+	i = 0;
+	empty_spaces = 0;
+	if (ft_strlen(str) < width)
+	{
+		final_str = ft_strnew(width);
+		empty_spaces = width - ft_strlen(str);
+		final_str = ft_str_width_minus(flags, str, final_str, empty_spaces);
+	}
+	else
+		final_str = ft_strdup(str);
+	free(str);
+	return (final_str);
+}
+
+char	*ft_str_precision(char *str, int precision)
+{
+	char	*final_str;
+	int		i;
+
+	i = 0;
+	if (ft_strlen(str) > precision)
+		final_str = ft_strsub(str, 0, precision);
+	else
+		final_str = ft_strdup(str);
+	free(str);
+	return (final_str);
+}
+
+char	*ft_str_manager(char *str, char *flags)
+{
+	int	i;
+	int width;
+	int precision;
+
+	i = 0;
+	if (flags)
+	{
+	 	if (ft_strchr("-.", flags[i]))
+			i++;
+		if (ft_strchr(flags, '.'))
+		{
+			if (ft_isdigit(flags[++i]))
+				precision = ft_atoi(flags + i);
+			printf("%d", precision);
+			str = ft_str_precision(str, precision);
+		}
+		if (ft_strchr(flags, '-'))
+		{
+			if (ft_isdigit(flags[i]))
+				width = ft_atoi(flags + i);
+			printf("%d", width);
+			str = ft_str_width(str, flags, width);
+		}
+	}
+	return (str);
+}
 
 int	conv_s(va_list *ap, char *flags_collector)
 {
@@ -104,12 +250,13 @@ int	conv_s(va_list *ap, char *flags_collector)
 	int		len;
 	
 	if (flags_collector)
-		printf("%s", flags_collector);
+		printf("%s\n", flags_collector);
 	check_str = va_arg(*ap, char*);
 	if (check_str == NULL)
 		print_str = ft_strdup("(null)");
 	else
 		print_str = ft_strdup(check_str);
+	print_str = ft_str_manager(print_str, flags_collector);
 	ft_putstr(print_str);
 	len = ft_strlen(print_str);
 	free(print_str);
