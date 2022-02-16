@@ -6,7 +6,7 @@
 /*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/02/15 17:36:09 by katarinka        ###   ########.fr       */
+/*   Updated: 2022/02/16 14:16:10 by katarinka        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ int	conversion_solver(const char *format, va_list *ap)
  	if (conversion == 's')
 		return (conv_s(ap, flags_collector));
 	if (conversion == 'p')
-		return (conv_p(ap, flags_collector));
+		return (conv_p(ap, flags_collector, conversion));
 	if (conversion == 'd' || conversion == 'i')
 		return (conv_d_i(ap, flags_collector));
 	if (conversion == 'o')
@@ -146,7 +146,6 @@ int	ft_char_manager(char c, char *flags)
 int	conv_c(va_list *ap, char *flags_collector)
 {
 	char	c;
-	char	*actual_flags;
 	int		len;
 	
 	len = 0;
@@ -188,7 +187,7 @@ char	*ft_str_width(char *str, char *flags, int width)
 
 	i = 0;
 	empty_spaces = 0;
-	if (ft_strlen(str) < width)
+	if ((int)ft_strlen(str) < width)
 	{
 		final_str = ft_strnew(width);
 		empty_spaces = width - ft_strlen(str);
@@ -206,7 +205,7 @@ char	*ft_str_precision(char *str, int precision)
 	int		i;
 
 	i = 0;
-	if (ft_strlen(str) > precision)
+	if ((int)ft_strlen(str) > precision)
 		final_str = ft_strsub(str, 0, precision);
 	else
 		final_str = ft_strdup(str);
@@ -221,22 +220,21 @@ char	*ft_str_manager(char *str, char *flags)
 	int precision;
 
 	i = 0;
+	width = 0;
+	precision = 0;
 	if (flags)
 	{
 	 	if (ft_strchr("-.", flags[i]))
 			i++;
 		if (ft_strchr(flags, '.'))
 		{
-			if (ft_isdigit(flags[++i]))
+			if (ft_isdigit(flags[i]) || ft_isdigit(flags[++i]))
 				precision = ft_atoi(flags + i);
-			printf("%d", precision);
 			str = ft_str_precision(str, precision);
 		}
-		if (ft_strchr(flags, '-'))
+		else if (ft_strchr(flags, '-') || ft_isdigit(flags[i]))
 		{
-			if (ft_isdigit(flags[i]))
-				width = ft_atoi(flags + i);
-			printf("%d", width);
+			width = ft_atoi(flags + i);
 			str = ft_str_width(str, flags, width);
 		}
 	}
@@ -249,8 +247,8 @@ int	conv_s(va_list *ap, char *flags_collector)
 	char	*print_str;
 	int		len;
 	
-	if (flags_collector)
-		printf("%s\n", flags_collector);
+	/* if (flags_collector)
+		printf("%s\n", flags_collector); */
 	check_str = va_arg(*ap, char*);
 	if (check_str == NULL)
 		print_str = ft_strdup("(null)");
@@ -261,6 +259,165 @@ int	conv_s(va_list *ap, char *flags_collector)
 	len = ft_strlen(print_str);
 	free(print_str);
 	return(len);
+}
+
+////////////////////////////////////////////CONV_O////////////////////////////////////////////////////////////////
+
+int	ft_numlen_base_u(uintmax_t num, int base)
+{
+	int	len;
+	
+	len = 1;
+	while (num / base > 0)
+	{
+		num = num / base;
+		len++;
+	}
+	return (len);
+}
+
+char	ft_base_u(unsigned int num, int base)
+{
+	char	*max_base_chars;
+	int		i;
+
+	max_base_chars = "0123456789";
+	i = num % base;
+	return (max_base_chars[i]);
+}
+
+char	*ft_itoa_base_u(unsigned int num, int base)
+{
+	char	*str;
+	int		i;
+
+	if (base < 2 || base > 16)
+		return (NULL);
+	i = ft_numlen_base_u(num, base);
+	str = ft_strnew(i);
+	if (!str)
+		return (NULL);
+	str[i--] = '\0';
+	while (i >= 0 && str[i] != '-')
+	{
+		str[i] = ft_base_u(num, base);
+		num = num / base;
+		i--;
+	}
+	return (str);
+}
+
+int	conv_o(va_list *ap, char *flags_collector)
+{
+	char	*print_num;
+	int		check_num;
+	int		len;
+
+	if (flags_collector)
+		printf("%s", flags_collector);
+	len = 0;
+	check_num = va_arg(*ap, unsigned int);
+	print_num = ft_itoa_base_u(check_num, 8);
+	ft_putstr(print_num);
+	len = ft_strlen(print_num);
+	free(print_num);
+	return (len);
+}
+
+////////////////////////////////////////////CONV_U////////////////////////////////////////////////////////////////
+
+char	*ft_itoa_dbase_u(uintmax_t num, int base)
+{
+	char	*str;
+	int		i;
+
+	if (base < 2 || base > 16)
+		return (NULL);
+	i = ft_numlen_base_u(num, base);
+	str = ft_strnew(i);
+	if (!str)
+		return (NULL);
+	str[i--] = '\0';
+	while (i >= 0 && str[i] != '-')
+	{
+		str[i] = ft_base_u(num, base);
+		num = num / base;
+		i--;
+	}
+	return (str);
+}
+
+int	conv_u(va_list *ap, char *flags_collector)
+{
+	char	*print_num;
+	int		check_num;
+	int		len;
+
+	if (flags_collector)
+		printf("%s", flags_collector);
+	len = 0;
+	check_num = va_arg(*ap, unsigned int);
+	print_num = ft_itoa_dbase_u(check_num, 10);
+	ft_putstr(print_num);
+	len = ft_strlen(print_num);
+	free(print_num);
+	return (len);
+}
+
+////////////////////////////////////////////CONV_x_X////////////////////////////////////////////////////////////////
+
+char	ft_base_hex(unsigned int num, int base, char conversion)
+{
+	char	*max_base_chars;
+	int		i;
+
+	if (conversion == 'X')
+		max_base_chars = "0123456789ABCDEF";
+	else
+		max_base_chars = "0123456789abcdef";
+	i = num % base;
+	return (max_base_chars[i]);
+}
+
+char	*ft_itoa_hex(uintmax_t num, int base, char conversion)
+{
+	char	*str;
+	int		i;
+
+	if (base < 2 || base > 16)
+		return (NULL);
+	i = ft_numlen_base_u(num, base);
+	str = ft_strnew(i);
+	if (!str)
+		return (NULL);
+	str[i--] = '\0';
+	while (num >= base && str[i] != '-')
+	{
+		str[i--] = ft_base_hex(num, base, conversion);
+		num = num / base;
+	}
+	if (num <= 9)
+		str[i--] = ft_base_hex(num, base, conversion);
+	else
+		str[i--] = ft_base_hex(num, base, conversion);
+	return (str);
+}
+
+int	conv_x(va_list *ap, char *flags_collector, char conversion)
+{
+	char	*print_num;
+	int		check_num;
+	int		len;
+
+	if (flags_collector)
+		printf("%s", flags_collector);
+	len = 0;
+	check_num = va_arg(*ap, unsigned int);
+	print_num = ft_itoa_hex(check_num, 16, conversion);
+	ft_putstr(print_num);
+	len = ft_strlen(print_num);
+	free(print_num);
+	return (len);
 }
 
 ////////////////////////////////////////////CONV_P////////////////////////////////////////////////////////////////
@@ -278,57 +435,71 @@ int	ft_ptrlen(uintptr_t print_ptr)
 	return (i);
 }
 
-void	ft_putptr(uintptr_t print_ptr)
+char	*ft_ptr_width(char *ptr, char *flags, int width)
 {
-	if (print_ptr >= 16)
-	{
-		ft_putptr(print_ptr / 16);
-		ft_putptr(print_ptr % 16);
-	}
-	else
-	{
-		if (print_ptr < 10)
-			ft_putchar(print_ptr + '0');
-		else
-			ft_putchar(print_ptr - 10 + 'a');
-	}
-	/* char	*str;
-	int		len;
+	char	*final_str;
+	int		empty_spaces;
 	
-	len = ft_ptrlen(print_ptr);
-	str = (char *)malloc(sizeof(char) * (len + 1));
-	while (print_ptr >= 16)
+	empty_spaces = 0;
+	if ((int)ft_strlen(ptr) < width)
 	{
-		if (print_ptr % 16 < 10)
-			ft_putchar(str[len--] = (print_ptr % 16) + '0');
+		final_str = ft_strnew(width);
+		empty_spaces = width - (int)ft_strlen(ptr);
+		if (ft_strchr(flags, '-'))
+		{
+			final_str = ft_strcpy(final_str, ptr);
+			while (empty_spaces > 0)
+			{
+				final_str = ft_strjoin(final_str, " ");
+				empty_spaces--;
+			}
+		}
 		else
-			ft_putchar(str[len--] = (print_ptr % 16) - 10 + 'a');
-		print_ptr = print_ptr / 16;
+		{
+			while (empty_spaces > 0)
+			{
+				final_str = ft_strjoin(final_str, " ");
+				empty_spaces--;
+			}
+			final_str = ft_strjoin(final_str, ptr);
+		}
 	}
-	if (print_ptr < 10)
-		ft_putchar(str[len--] = print_ptr + '0');
 	else
-		ft_putchar(str[len--] = print_ptr - 10 + 'a');
-	return (str); */
+		final_str = ft_strdup(ptr);
+	return (final_str);
 }
 
-int	conv_p(va_list *ap, char *flags_collector)
+char	*ft_ptr_manager(char *ptr, char *flags)
 {
-	char	*ptr;
+	int	i;
+	int	width;
+
+	i = 0;
+	width = 0;
+	if (ft_strchr("-", flags[i]))
+		i++;
+	if (ft_strchr(flags, '-') || ft_isdigit(flags[i]))
+	{
+		width = ft_atoi(flags + i);
+		ptr = ft_ptr_width(ptr, flags, width);
+	}
+	return (ptr);
+}
+
+int	conv_p(va_list *ap, char *flags_collector, char conversion)
+{
+	void	*ptr;
+	char	*final_ptr;
 	int		len;
 	
-	if (flags_collector)
-		printf("%s", flags_collector);
-	len = 0;
-	len = len + write(1, "0x", 2);
 	ptr = va_arg(*ap, void*);
-	if (ptr == 0)
-		len = len + write(1, "0", 1);
-	else
-	{
-		ft_putptr((uintptr_t)ptr);
-		len = len + ft_ptrlen(*ptr);
-	}
+	final_ptr = ft_itoa_hex((uintptr_t)ptr, 16, conversion);
+	final_ptr = ft_strjoin("0x", final_ptr);
+	if (flags_collector)
+		final_ptr = ft_ptr_manager(final_ptr, flags_collector);
+	ft_putstr(final_ptr);
+	len = ft_strlen(final_ptr);
+	free(final_ptr);
 	return(len);
 }
 
@@ -395,162 +566,6 @@ int	conv_d_i(va_list *ap, char *flags_collector)
 	len = 0;
 	check_num = va_arg(*ap, int);
 	print_num = ft_itoa_dibase(check_num, 10);
-	ft_putstr(print_num);
-	len = ft_strlen(print_num);
-	free(print_num);
-	return (len);
-}
-
-////////////////////////////////////////////CONV_O////////////////////////////////////////////////////////////////
-
-int	ft_numlen_base_u(unsigned int num, int base)
-{
-	int	len;
-	
-	len = 0;
-	while (num)
-	{
-		num = num / base;
-		len++;
-	}
-	return (len);
-}
-
-char	ft_base_u(unsigned int num, int base)
-{
-	char	*max_base_chars;
-	int		i;
-
-	max_base_chars = "0123456789";
-	i = num % base;
-	return (max_base_chars[i]);
-}
-
-char	*ft_itoa_base_u(unsigned int num, int base)
-{
-	char	*str;
-	int		i;
-
-	if (base < 2 || base > 16)
-		return (NULL);
-	i = ft_numlen_base_u(num, base);
-	str = ft_strnew(i);
-	if (!str)
-		return (NULL);
-	str[i--] = '\0';
-	while (i >= 0 && str[i] != '-')
-	{
-		str[i] = ft_base_u(num, base);
-		num = num / base;
-		i--;
-	}
-	return (str);
-}
-
-int	conv_o(va_list *ap, char *flags_collector)
-{
-	char	*print_num;
-	int		check_num;
-	int		len;
-
-	if (flags_collector)
-		printf("%s", flags_collector);
-	len = 0;
-	check_num = va_arg(*ap, unsigned int);
-	print_num = ft_itoa_base_u(check_num, 8);
-	ft_putstr(print_num);
-	len = ft_strlen(print_num);
-	free(print_num);
-	return (len);
-}
-
-////////////////////////////////////////////CONV_U////////////////////////////////////////////////////////////////
-
-char	*ft_itoa_dbase_u(unsigned int num, int base)
-{
-	char	*str;
-	int		i;
-
-	if (base < 2 || base > 16)
-		return (NULL);
-	i = ft_numlen_base_u(num, base);
-	str = ft_strnew(i);
-	if (!str)
-		return (NULL);
-	str[i--] = '\0';
-	while (i >= 0 && str[i] != '-')
-	{
-		str[i] = ft_base_u(num, base);
-		num = num / base;
-		i--;
-	}
-	return (str);
-}
-
-int	conv_u(va_list *ap, char *flags_collector)
-{
-	char	*print_num;
-	int		check_num;
-	int		len;
-
-	if (flags_collector)
-		printf("%s", flags_collector);
-	len = 0;
-	check_num = va_arg(*ap, unsigned int);
-	print_num = ft_itoa_dbase_u(check_num, 10);
-	ft_putstr(print_num);
-	len = ft_strlen(print_num);
-	free(print_num);
-	return (len);
-}
-
-////////////////////////////////////////////CONV_x_X////////////////////////////////////////////////////////////////
-
-char	ft_base_hex(unsigned int num, int base, char conversion)
-{
-	char	*max_base_chars;
-	int		i;
-
-	if (conversion == 'x')
-		max_base_chars = "0123456789abcdef";
-	else
-		max_base_chars = "0123456789ABCDEF";
-	i = num % base;
-	return (max_base_chars[i]);
-}
-
-char	*ft_itoa_hex(unsigned int num, int base, char conversion)
-{
-	char	*str;
-	int		i;
-
-	if (base < 2 || base > 16)
-		return (NULL);
-	i = ft_numlen_base_u(num, base);
-	str = ft_strnew(i);
-	if (!str)
-		return (NULL);
-	str[i--] = '\0';
-	while (i >= 0 && str[i] != '-')
-	{
-		str[i] = ft_base_hex(num, base, conversion);
-		num = num / base;
-		i--;
-	}
-	return (str);
-}
-
-int	conv_x(va_list *ap, char *flags_collector, char conversion)
-{
-	char	*print_num;
-	int		check_num;
-	int		len;
-
-	if (flags_collector)
-		printf("%s", flags_collector);
-	len = 0;
-	check_num = va_arg(*ap, unsigned int);
-	print_num = ft_itoa_hex(check_num, 16, conversion);
 	ft_putstr(print_num);
 	len = ft_strlen(print_num);
 	free(print_num);
