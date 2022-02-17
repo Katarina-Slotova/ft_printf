@@ -6,7 +6,7 @@
 /*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/02/16 14:16:10 by katarinka        ###   ########.fr       */
+/*   Updated: 2022/02/17 17:16:21 by katarinka        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -391,7 +391,7 @@ char	*ft_itoa_hex(uintmax_t num, int base, char conversion)
 	if (!str)
 		return (NULL);
 	str[i--] = '\0';
-	while (num >= base && str[i] != '-')
+	while (num >= (uintmax_t)base && str[i] != '-')
 	{
 		str[i--] = ft_base_hex(num, base, conversion);
 		num = num / base;
@@ -510,7 +510,7 @@ int	ft_numlen_dibase(long num, int base)
 	int	len;
 	
 	len = 0;
-	if (num < 0)
+	if (num < 0 || num == 0)
 		len++;
 	while (num)
 	{
@@ -555,6 +555,83 @@ char	*ft_itoa_dibase(long int num, int base)
 	return (str);
 }
 
+char	*ft_di_width(char *print_num, int check_num, char *flags, int width)
+{
+	char	*final_num;
+	int		empty_spaces;
+	
+	if ((int)ft_strlen(print_num) < width)
+	{
+		empty_spaces = width - (int)ft_strlen(print_num);
+		final_num = ft_strnew(width);
+		if (ft_strchr(flags, '-'))
+		{
+			final_num = ft_strcpy(final_num, print_num);
+			while (width - (int)ft_strlen(print_num) > 0)
+			{
+				final_num = ft_strjoin(final_num, " ");
+				empty_spaces--;
+			}
+		}
+		else
+		{
+			while (empty_spaces > 0)
+			{	
+				if (ft_strchr(flags, '0'))
+					final_num = ft_strjoin(final_num, "0");
+				else
+					final_num = ft_strjoin(final_num, " ");
+				empty_spaces--;
+			}
+			if (ft_strchr(flags, '+') && !ft_strchr(flags, '0') && check_num >= 0)
+				print_num = ft_strjoin("+", print_num);
+			else if (ft_strchr(flags, '+') && ft_strchr(flags, '0') && check_num >= 0)
+			{
+				final_num = ft_strsub(final_num, 1, width);
+				final_num = ft_strjoin("+", final_num);
+			}
+			final_num = ft_strjoin(final_num, print_num);
+		}
+	}
+	else
+		final_num = ft_strdup(print_num);
+	free(print_num);
+	return (final_num);
+}
+
+char	*ft_di_plus_flag(char *print_num)
+{
+	print_num = ft_strjoin("+", print_num);
+	return (print_num);
+}
+
+char	*ft_di_manager(char *print_num, int check_num, char *flags)
+{
+	int	width;
+	int	precision;
+	int	i;
+
+	i = 0;
+	precision = 0;
+	width = 0;
+	if (ft_strchr("0+-.", flags[i]))
+		i++;
+	if (ft_strchr(flags, '.'))
+	{
+		if (ft_isdigit(flags[i]) || ft_isdigit(flags[++i]))
+			precision = ft_atoi(flags + i);
+		//print_num = ft_di_precision(print_num, flags, precision);
+	}
+	else if (ft_strchr(flags, '-') || ft_isdigit(flags[i]) || ft_strchr(flags, '0'))
+	{
+		width = ft_atoi(flags + i);
+		print_num = ft_di_width(print_num, check_num, flags, width);
+	}
+	else if (ft_strchr(flags, '+'))
+		print_num = ft_di_plus_flag(print_num);
+	return (print_num);
+}
+
 int	conv_d_i(va_list *ap, char *flags_collector)
 {
 	char	*print_num;
@@ -566,6 +643,7 @@ int	conv_d_i(va_list *ap, char *flags_collector)
 	len = 0;
 	check_num = va_arg(*ap, int);
 	print_num = ft_itoa_dibase(check_num, 10);
+	print_num = ft_di_manager(print_num, check_num, flags_collector);
 	ft_putstr(print_num);
 	len = ft_strlen(print_num);
 	free(print_num);
