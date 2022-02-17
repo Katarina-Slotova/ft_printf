@@ -1,2 +1,2 @@
 # ft_printf
-Because i’m tired of using putnbr and putstr.
+Because I’m tired of using putnbr and putstr.
