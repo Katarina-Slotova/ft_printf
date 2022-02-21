@@ -3,13 +3,13 @@
 
 int main ()
 {
-    //char *x = "hello";
+    char *x = "hello";
     //const char * y = "monkeys";
 
 	//int x = 12;
 	//int *ptr = &x;
-	int num = 25670;
-	ft_printf("The address is: %+d.\n", num);
+	int num = 0;
+	ft_printf("The address is: %.9o.\n", num);
     /* Demonstrate with numbers. */
     //ft_printf ("<%s> is not justified.\n", x);
     //printf ("<%5d> is right-justified.\n", x);
