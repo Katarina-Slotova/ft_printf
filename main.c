@@ -8,8 +8,8 @@ int main ()
 
 	//int x = 12;
 	//int *ptr = &x;
-	int num = 0;
-	ft_printf("The address is: % 09d.\n", num);
+	int num = 23450;
+	printf("The address is: % 09u.\n", num);
     /* Demonstrate with numbers. */
     //ft_printf ("<%s> is not justified.\n", x);
     //printf ("<%5d> is right-justified.\n", x);

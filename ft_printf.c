@@ -6,7 +6,7 @@
 /*   By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/02/23 15:21:15 by kslotova         ###   ########.fr       */
+/*   Updated: 2022/02/24 12:19:56 by kslotova         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -586,6 +586,32 @@ char	*ft_itoa_hex(uintmax_t num, int base, char conversion)
 	return (str);
 }
 
+char	*ft_x_manager(char *print_num, char *flags)
+{
+	int	width;
+	int	precision;
+	int	i;
+
+	i = 0;
+	precision = 0;
+	width = 0;
+	if (ft_strchr("-.", flags[i]))
+		i++;
+	if (ft_strchr(flags, '.'))
+	{
+		precision = ft_atoi(ft_strchr(flags, '.') + 1);
+		print_num = ft_o_precision(print_num, precision);
+	}
+	else if (ft_strchr(flags, '-') || ft_isdigit(flags[i]))
+	{
+		width = ft_atoi(&flags[i]);
+		if (width < 0)
+			width = width * -1;
+		print_num = ft_o_width(print_num, flags, width);
+	}
+	return (print_num);
+}
+
 int	conv_x(va_list *ap, char *flags_collector, char conversion)
 {
 	char	*print_num;
@@ -597,6 +623,7 @@ int	conv_x(va_list *ap, char *flags_collector, char conversion)
 	len = 0;
 	check_num = va_arg(*ap, unsigned int);
 	print_num = ft_itoa_hex(check_num, 16, conversion);
+	print_num = ft_x_manager(print_num, flags_collector);
 	ft_putstr(print_num);
 	len = ft_strlen(print_num);
 	free(print_num);
@@ -772,11 +799,14 @@ char	*ft_di_width(char *print_num, int check_num, char *flags, int width)
 				print_num = ft_strjoin("+", print_num);
 				final_num = ft_strsub(final_num, 1, width);
 			}
-			else if (ft_strchr(flags, '+') && ft_strchr(flags, '0') \
+			else if ((ft_strchr(flags, '+') || ft_strchr(flags, ' ')) && ft_strchr(flags, '0') \
 			&& check_num >= 0)
 			{
 				final_num = ft_strsub(final_num, 1, width);
-				final_num = ft_strjoin("+", final_num);
+				if (ft_strchr(flags, '+'))
+					final_num = ft_strjoin("+", final_num);
+				else if (ft_strchr(flags, ' '))
+					final_num = ft_strjoin(" ", final_num);
 			}
 			final_num = ft_strjoin(final_num, print_num);
 		}
