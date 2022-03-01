@@ -6,7 +6,7 @@
 /*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/02/28 11:20:08 by katarinka        ###   ########.fr       */
+/*   Updated: 2022/03/01 12:14:29 by katarinka        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,6 +258,36 @@ int	conv_s(va_list *ap, char *flags_collector)
 	return(len);
 }
 
+////////////////////////////////////////////GENERAL FUNCTIONS////////////////////////////////////////////////////////////////
+
+unsigned long long int	ft_oux_datatype(va_list *ap, char *flags)
+{
+	if (ft_strstr(flags, "hh"))
+		return (unsigned char)va_arg(*ap, unsigned long long int);
+	else if (ft_strchr(flags, 'h'))
+		return (unsigned short int)va_arg(*ap, unsigned long long int);
+	else if (ft_strchr(flags, 'l'))
+		return (unsigned long int)va_arg(*ap, unsigned long long int);
+	else if (ft_strstr(flags, "ll"))
+		return va_arg(*ap, unsigned long long int);
+	else
+		return (unsigned int)va_arg(*ap, unsigned long long int);
+}
+
+long long int	ft_di_datatype(va_list *ap, char *flags)
+{
+	if (ft_strstr(flags, "hh"))
+		return (signed char)va_arg(*ap, long long int);
+	else if (ft_strchr(flags, 'h'))
+		return (short int)va_arg(*ap, long long int);
+	else if (ft_strchr(flags, 'l'))
+		return (long int)va_arg(*ap, long long int);
+	else if (ft_strstr(flags, "ll"))
+		return va_arg(*ap, long long int);
+	else
+		return (int)va_arg(*ap, unsigned long long int);
+}
+
 ////////////////////////////////////////////CONV_O////////////////////////////////////////////////////////////////
 
 int	ft_numlen_base_u(uintmax_t num, int base)
@@ -471,7 +501,7 @@ int	conv_o(va_list *ap, char *flags_collector)
 	int		len;
 
 	len = 0;
-	check_num = va_arg(*ap, unsigned int);
+	check_num = ft_oux_datatype(ap, flags_collector);
 	print_num = ft_itoa_base_u(check_num, 8);
 	print_num = ft_o_manager(print_num, check_num, flags_collector);
 	ft_putstr(print_num);
@@ -538,7 +568,7 @@ int	conv_u(va_list *ap, char *flags_collector)
 	if (flags_collector)
 		printf("%s", flags_collector);
 	len = 0;
-	check_num = va_arg(*ap, unsigned int);
+	check_num = ft_oux_datatype(ap, flags_collector);
 	print_num = ft_itoa_dbase_u(check_num, 10);
 	print_num = ft_u_manager(print_num, flags_collector);
 	ft_putstr(print_num);
@@ -595,7 +625,7 @@ char	*ft_x_manager(char *print_num, char *flags)
 	i = 0;
 	precision = 0;
 	width = 0;
-	if (ft_strchr("-.", flags[i]))
+	if (ft_strchr("#-.", flags[i]))
 		i++;
 	if (ft_strchr(flags, '.'))
 	{
@@ -605,23 +635,25 @@ char	*ft_x_manager(char *print_num, char *flags)
 	else if (ft_strchr(flags, '-') || ft_isdigit(flags[i]))
 	{
 		width = ft_atoi(&flags[i]);
-		if (width < 0)
-			width = width * -1;
+		if (ft_strchr(flags, '#') && *print_num != '0')
+			print_num = ft_strjoin("0x", print_num);
 		print_num = ft_o_width(print_num, flags, width);
 	}
+	else if (ft_strchr(flags, '#') && *print_num != '0')
+		print_num = ft_strjoin("0x", print_num);
 	return (print_num);
 }
 
 int	conv_x(va_list *ap, char *flags_collector, char conversion)
 {
 	char	*print_num;
-	int		check_num;
+	unsigned long long int		check_num;
 	int		len;
 
 	if (flags_collector)
 		printf("%s", flags_collector);
 	len = 0;
-	check_num = va_arg(*ap, unsigned int);
+	check_num = ft_oux_datatype(ap, flags_collector);
 	print_num = ft_itoa_hex(check_num, 16, conversion);
 	print_num = ft_x_manager(print_num, flags_collector);
 	ft_putstr(print_num);
@@ -890,9 +922,9 @@ int	conv_d_i(va_list *ap, char *flags_collector)
 	int		len;
 
 	if (flags_collector)
-		printf("%s", flags_collector);
+		printf("<<%s>>", flags_collector);
 	len = 0;
-	check_num = va_arg(*ap, int);
+	check_num = ft_di_datatype(ap, flags_collector);
 	print_num = ft_itoa_dibase(check_num, 10);
 	print_num = ft_di_manager(print_num, check_num, flags_collector);
 	ft_putstr(print_num);
@@ -1050,7 +1082,6 @@ int ft_printf(const char *format, ...)
 		{
 			while ((is_conversion(format[i]) && format[i - 1] == '%') ||
 			(is_flag(format[i]) && format[i - 1] == '%') ||
-			(is_conversion(format[i]) && is_flag(format[i - 1])) ||
 			(is_flag(format[i]) && is_flag(format[i - 1])))
 				i++;
 			printed_chars = ft_printer(printed_chars, format[i]);
