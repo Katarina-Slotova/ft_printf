@@ -6,7 +6,7 @@
 /*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/03/01 12:14:29 by katarinka        ###   ########.fr       */
+/*   Updated: 2022/03/02 12:27:50 by katarinka        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,21 @@ int	is_flag(char c)
 	else
 		return (0);
 }
+
+/* int	is_flag(const char *format)
+{
+	int i;
+
+	i = 1;
+	while (format)
+	{
+		if (format[i] == 'h' || format[i] == 'l' || format[i] == 'L' || format[i] == '#' || format[i] == '-' || format[i] == '+' \
+		|| (format[i] == '0' && !ft_isdigit(format[i - 1])) || format[i] == '.' || format[i] == ' ' || ft_isdigit(format[i]))
+			return (1);
+		i++;
+	}
+	return (0);
+} */
 
 int	conversion_solver(const char *format, va_list *ap)
 {
