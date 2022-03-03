@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_printf.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
+/*   By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/03/02 12:27:50 by katarinka        ###   ########.fr       */
+/*   Updated: 2022/03/03 14:27:35 by kslotova         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,8 @@ int	is_flag(char c)
 	else
 		return (0);
 }
-
-/* int	is_flag(const char *format)
+/* 
+int	is_flag(const char *format)
 {
 	int i;
 
@@ -52,8 +52,10 @@ int	is_flag(char c)
 	while (format)
 	{
 		if (format[i] == 'h' || format[i] == 'l' || format[i] == 'L' || format[i] == '#' || format[i] == '-' || format[i] == '+' \
-		|| (format[i] == '0' && !ft_isdigit(format[i - 1])) || format[i] == '.' || format[i] == ' ' || ft_isdigit(format[i]))
+		|| (format[i] == '0' && !ft_isdigit(format[i - 1])) || format[i] == '.' || format[i] == ' ')
 			return (1);
+		else if (ft_isdigit(format[i]))
+			return (2);
 		i++;
 	}
 	return (0);
@@ -90,8 +92,6 @@ int	conversion_solver(const char *format, va_list *ap)
 		return (conv_u(ap, flags_collector));
 	if (conversion == 'x' || conversion == 'X')
 		return (conv_x(ap, flags_collector, conversion));
-/*	if (conversion == 'X')
-		return (conv_X(ap, flags_collector)); */
 	if (conversion == 'f')
 		return (conv_f(ap, flags_collector));
 	if (conversion == '%')
@@ -812,6 +812,28 @@ char	*ft_itoa_dibase(long int num, int base)
 	return (str);
 }
 
+int	ft_iszero(char *flags)
+{
+	int	i;
+	int index_zero;
+	int	index_comp;
+
+	i = 0;
+	index_zero = -1;
+	index_comp = -1;
+	while (flags[i])
+	{
+		if (flags[i] == '0')
+			index_zero = i;
+		if (flags[i] >= '1' && flags[i] >= '9')
+			index_comp = i;
+		if ((index_zero < index_comp) && index_zero != -1)
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
 char	*ft_di_width(char *print_num, int check_num, char *flags, int width)
 {
 	char	*final_num;
@@ -834,7 +856,7 @@ char	*ft_di_width(char *print_num, int check_num, char *flags, int width)
 		{
 			while (empty_spaces > 0)
 			{	
-				if (ft_strchr(flags, '0'))
+				if (ft_iszero(flags))
 					final_num = ft_strjoin(final_num, "0");
 				else
 					final_num = ft_strjoin(final_num, " ");
@@ -920,7 +942,7 @@ char	*ft_di_manager(char *print_num, int check_num, char *flags)
 	else if (ft_strchr(flags, '-') || ft_isdigit(flags[i]) || \
 	ft_strchr(flags, '0') || ft_strchr(flags, ' '))
 	{
-		width = ft_atoi(flags + i);
+		width = ft_atoi(&flags[i]);
 		print_num = ft_di_width(print_num, check_num, flags, width);
 	}
 	else if (ft_strchr(flags, '+'))

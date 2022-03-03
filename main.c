@@ -10,7 +10,7 @@ int main ()
 	//int *ptr = &x;
 	int num = 29540;
 	//char c = 23450;
-	ft_printf("The address is: % 20d.\n", num);
+	ft_printf("The address is: % 10d.\n", num);
     /* Demonstrate with numbers. */
     //ft_printf ("<%s> is not justified.\n", x);
     //printf ("<%5d> is right-justified.\n", x);
