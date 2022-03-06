@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_printf.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+        */
+/*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/03/03 14:27:35 by kslotova         ###   ########.fr       */
+/*   Updated: 2022/03/06 14:05:13 by katarinka        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1095,37 +1095,30 @@ int	conv_f(va_list *ap, char *flags_collector)
 
 ////////////////////////////////////////////PRINTF////////////////////////////////////////////////////////////////
 
-int	ft_printer(int printed_chars, char c)
-{
-	ft_putchar(c);
-	return (printed_chars);
-}
-
 int ft_printf(const char *format, ...)
 {
 	va_list	ap;
 	int		char_counter;
 	int		i;
-	int		printed_chars;
+	int		in_conversion;
 
 	char_counter = 0;
 	i = 0;
+	in_conversion = 0;
 	va_start(ap, format);
-	while (format[i])
-	{
-		if (format[i] == '%')
-			char_counter += conversion_solver(&format[i], &ap);
-		else
+	while (format[i++])
+		if (format[i] == '%' && !in_conversion)
 		{
-			while ((is_conversion(format[i]) && format[i - 1] == '%') ||
-			(is_flag(format[i]) && format[i - 1] == '%') ||
-			(is_flag(format[i]) && is_flag(format[i - 1])))
-				i++;
-			printed_chars = ft_printer(printed_chars, format[i]);
+			in_conversion = 1;
+			char_counter += conversion_solver(&format[i], &ap);
+		}
+		else if (!in_conversion)
+		{
+			ft_putchar(format[i]);
 			char_counter++;
 		}
-		i++;
-	}
+		else if (is_conversion(format[i]))
+			in_conversion = 0;
 	va_end(ap);
 	return (char_counter);
 }
