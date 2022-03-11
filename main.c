@@ -8,9 +8,10 @@ int main ()
 
 	//int x = 12;
 	//int *ptr = &x;
-	int num = 29540;
+	//int num = 42;
 	//char c = 23450;
-	ft_printf("The address is: % 20d.\n", num);
+	ft_printf("%5d", -42);
+	//ft_printf("%Lf\n", -0.0L);
     /* Demonstrate with numbers. */
     //ft_printf ("<%s> is not justified.\n", x);
     //printf ("<%5d> is right-justified.\n", x);

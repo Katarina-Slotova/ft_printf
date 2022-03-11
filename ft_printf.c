@@ -6,7 +6,7 @@
 /*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/03/06 14:05:13 by katarinka        ###   ########.fr       */
+/*   Updated: 2022/03/11 14:45:20 by katarinka        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,23 +43,29 @@ int	is_flag(char c)
 	else
 		return (0);
 }
-/* 
-int	is_flag(const char *format)
-{
-	int i;
 
-	i = 1;
-	while (format)
-	{
-		if (format[i] == 'h' || format[i] == 'l' || format[i] == 'L' || format[i] == '#' || format[i] == '-' || format[i] == '+' \
-		|| (format[i] == '0' && !ft_isdigit(format[i - 1])) || format[i] == '.' || format[i] == ' ')
-			return (1);
-		else if (ft_isdigit(format[i]))
-			return (2);
-		i++;
-	}
+int	conversion_identifier(char conversion, char *flags, va_list *ap)
+{
+	if (conversion == 'c')
+		return (conv_c(ap, flags));
+ 	if (conversion == 's')
+		return (conv_s(ap, flags));
+	if (conversion == 'p')
+		return (conv_p(ap, flags, conversion));
+	if (conversion == 'd' || conversion == 'i')
+		return (conv_d_i(ap, flags));
+	if (conversion == 'o')
+		return (conv_o(ap, flags));
+	if (conversion == 'u')
+		return (conv_u(ap, flags));
+	if (conversion == 'x' || conversion == 'X')
+		return (conv_x(ap, flags, conversion));
+	if (conversion == 'f')
+		return (conv_f(ap, flags));
+	if (conversion == '%')
+		return (conv_percent(flags));
 	return (0);
-} */
+}
 
 int	conversion_solver(const char *format, va_list *ap)
 {
@@ -78,7 +84,7 @@ int	conversion_solver(const char *format, va_list *ap)
 		i++;
 	}
 	conversion = format[i];
-	if (conversion == 'c')
+	/* if (conversion == 'c')
 		return (conv_c(ap, flags_collector));
  	if (conversion == 's')
 		return (conv_s(ap, flags_collector));
@@ -96,16 +102,10 @@ int	conversion_solver(const char *format, va_list *ap)
 		return (conv_f(ap, flags_collector));
 	if (conversion == '%')
 		return (conv_percent());
-	return (0);
+	return (0); */
+	return (conversion_identifier(conversion, flags_collector, ap));
 }
 
-////////////////////////////////////////////CONV_%////////////////////////////////////////////////////////////////
-
-int	conv_percent()
-{
-	write(1, "%", 1);
-	return (1);
-}
 
 ////////////////////////////////////////////CONV_C////////////////////////////////////////////////////////////////
 
@@ -143,14 +143,14 @@ int	ft_char_manager(char c, char *flags)
 
 	i = 0;
 	width = 0;
-	if (flags)
+	if (ft_strcmp(flags, "") != 0)
 	{
 		if (ft_strchr("-", flags[i]))
 			i++;
 		if (ft_isdigit(flags[i]))
 			width = ft_atoi(flags + i);
 		return (ft_char_width(c, flags, width));
-	}
+	} 
 	else
 	{
 		ft_putchar(c);
@@ -165,10 +165,73 @@ int	conv_c(va_list *ap, char *flags_collector)
 	
 	len = 0;
 	c = va_arg(*ap, int);
-	len = ft_char_manager(c, flags_collector);
-	return(len);
+	if (ft_strchr(flags_collector, '.') || ft_strchr(flags_collector, ' '))
+		ft_putstr("");
+	else
+		len = ft_char_manager(c, flags_collector);
+	return (len);
 }
 
+////////////////////////////////////////////CONV_%////////////////////////////////////////////////////////////////
+
+int	ft_percent_width(char *flags, int width)
+{
+	int	total_width;
+ 
+	total_width = width;
+	if (ft_strchr(flags, '-'))
+	{
+		write(1, "%", 1);
+		width--;
+		while(width > 0)
+		{
+			write(1, " ", 1);
+			width--;
+		}
+	}
+	else
+	{
+		while(width > 1)
+		{
+			write(1, " ", 1);
+			width--;
+		}
+		write(1, "%", 1);
+	}
+	return (total_width);
+}
+
+int	ft_percent_manager(char *flags)
+{
+	int	i;
+	int	width;
+
+	i = 0;
+	width = 0;
+	if (ft_strchr(flags, '-') || ft_isdigit(flags[i]))
+	{
+		if (ft_strchr("-", flags[i]))
+			i++;
+		if (ft_isdigit(flags[i]))
+			width = ft_atoi(flags + i);
+		return (ft_percent_width(flags, width));
+	}
+	else
+	{
+		write(1, "%", 1);
+		return (1);
+	}
+}
+
+int	conv_percent(char *flags_collector)
+{
+	int		len;
+
+	len = 0;
+	len = ft_percent_manager(flags_collector);
+	//printf("This is total len: %d\n", len);
+	return (len);
+}
 ////////////////////////////////////////////CONV_S////////////////////////////////////////////////////////////////
 
 char	*ft_str_width_minus(char *flags, char *str, char *final_str, int empty_spaces)
@@ -217,7 +280,7 @@ char	*ft_str_width(char *str, char *flags, int width)
 char	*ft_str_precision(char *str, int precision)
 {
 	char	*final_str;
-
+	
 	if ((int)ft_strlen(str) > precision)
 		final_str = ft_strsub(str, 0, precision);
 	else
@@ -237,19 +300,22 @@ char	*ft_str_manager(char *str, char *flags)
 	precision = 0;
 	if (flags)
 	{
-	 	if (ft_strchr("-.", flags[i]))
-			i++;
+	 	/* if (ft_strchr("-.", flags[i]))
+			i++; */
 		if (ft_strchr(flags, '.'))
 		{
 			precision = ft_atoi(ft_strchr(flags, '.') + 1);
 			str = ft_str_precision(str, precision);
 		}
-		else if (ft_strchr(flags, '-') || ft_isdigit(flags[i]))
+		if (ft_strchr(flags, '-') || ft_isdigit(flags[i]))
 		{
-			width = ft_atoi(flags + i);
+			width = ft_atoi(&flags[i]);
+			if (width < 0)
+				width *= -1;
 			str = ft_str_width(str, flags, width);
 		}
 	}
+	//printf("This is the final string: <<%s>>\n", str);
 	return (str);
 }
 
@@ -259,7 +325,7 @@ int	conv_s(va_list *ap, char *flags_collector)
 	char	*print_str;
 	int		len;
 	
-	/* if (flags_collector)
+/* 	if (flags_collector)
 		printf("%s\n", flags_collector); */
 	check_str = va_arg(*ap, char*);
 	if (check_str == NULL)
@@ -301,6 +367,40 @@ long long int	ft_di_datatype(va_list *ap, char *flags)
 		return va_arg(*ap, long long int);
 	else
 		return (int)va_arg(*ap, unsigned long long int);
+}
+
+int	ft_iszero(char *flags)
+{
+	int	i;
+	int index_zero;
+	int	index_comp;
+
+	i = 0;
+	index_zero = -1;
+	index_comp = -1;
+	while (flags[i])
+	{
+		if (flags[i] == '0')
+			index_zero = i;
+		if (flags[i] >= '1' && flags[i] <= '9')
+			index_comp = i;
+		if ((index_zero < index_comp) && index_zero != -1)
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
+char	*dio_width_emptyspaces(int empty_spaces, char *flags, char *final_num)
+{
+	while (empty_spaces-- > 0)
+	{
+		if (ft_iszero(flags))
+			final_num = ft_strjoin(final_num, "0");
+		else 
+			final_num = ft_strjoin(final_num, " ");
+	}
+	return (final_num);
 }
 
 ////////////////////////////////////////////CONV_O////////////////////////////////////////////////////////////////
@@ -360,38 +460,25 @@ char	*ft_o_width(char *print_num, char *flags, int width)
 		final_num = ft_strnew(width);
 		if (ft_strchr(flags, '-'))
 		{
-			/* if (ft_strchr(flags, '#'))
-			{
-				final_num = ft_strjoin(final_num, "0");
-				empty_spaces--;
-			} */
 			final_num = ft_strjoin(final_num, print_num);
 			while (empty_spaces-- > 0)
 				final_num = ft_strjoin(final_num, " ");
 		}
 		else
 		{
-			while (empty_spaces-- > 0)
+			final_num = dio_width_emptyspaces(empty_spaces, flags, final_num);
+			/* 	while (empty_spaces-- > 0)
 			{
-				if (ft_strchr(flags, '0'))
+				if (ft_iszero(flags))
 					final_num = ft_strjoin(final_num, "0");
 				else
 					final_num = ft_strjoin(final_num, " ");
-			}
-			/* if (ft_strchr(flags, '#') && check_num != 0)
-			{
-				final_num = ft_strsub(final_num, 1, width);
-				final_num = ft_strjoin(final_num, "0");
 			} */
 			final_num = ft_strjoin(final_num, print_num);
 		}
 	}
 	else
-	{
-		/* if (ft_strchr(flags, '#') && check_num != 0)
-			ft_putchar('0'); */
 		final_num = ft_strdup(print_num);
-	}
 	free(print_num);
 	return (final_num);
 }
@@ -410,11 +497,7 @@ char	*ft_o_precision(char *print_num, int precision)
 		final_num = ft_strjoin(final_num, print_num);
 	}
 	else
-	{
-		/* if (ft_strchr(flags, '#'))
-			ft_putchar('0'); */
 		final_num = ft_strdup(print_num);
-	}
 	return (final_num);	
 }
 
@@ -466,7 +549,7 @@ char	*ft_hashtag(char *print_num, int check_num, char *flags, int w_or_p)
 			final_num = ft_strjoin("0", print_num);
 			final_num = ft_o_width(final_num, flags, w_or_p);
 		}
-		final_num = ft_o_width(final_num, flags, w_or_p);
+		//final_num = ft_o_width(final_num, flags, w_or_p);
 	}
 	else
 		final_num = ft_strjoin("0", print_num);
@@ -474,7 +557,7 @@ char	*ft_hashtag(char *print_num, int check_num, char *flags, int w_or_p)
 	return (final_num);
 }
 
-char	*ft_o_manager(char *print_num, int check_num, char *flags)
+char	*ft_o_manager(char *print_num, int check_num, char *flags) //SHORTEN - extra 6 lines
 {
 	int	width;
 	int	precision;
@@ -483,7 +566,7 @@ char	*ft_o_manager(char *print_num, int check_num, char *flags)
 	i = 0;
 	precision = 0;
 	width = 0;
-	printf("The flag is %s", flags);
+	//printf("The flag is <<%s>>\n", flags);
 	if (ft_strchr("0-#.", flags[i]))
 		i++;
 	if (ft_strchr(flags, '.'))
@@ -494,18 +577,20 @@ char	*ft_o_manager(char *print_num, int check_num, char *flags)
 		else
 			print_num = ft_o_precision(print_num, precision);
 	}
-	else if (ft_strchr(flags, '-') || ft_strchr(flags, ft_isdigit(*flags)) || ft_isdigit(*flags))
+	if (ft_strchr(flags, '-') || ft_isdigit(*flags) || ft_strchr(flags, '#'))
 	{
+ 		while (ft_isdigit(flags[i]) != 1)
+			i++;
 		width = ft_atoi(&flags[i]);
 		if (width < 0)
-			width = width * -1;
+			width *= -1;
 	 	if (ft_strchr(flags, '#'))
 			print_num = ft_hashtag(print_num, check_num, flags, width);
 		else
 			print_num = ft_o_width(print_num, flags, width);
 	}
-	else if (ft_strchr(flags, '#'))
-		print_num = ft_strjoin("0", print_num);
+/* 	else if (ft_strchr(flags, '#'))
+		print_num = ft_strjoin("0", print_num); */
 	return (print_num);
 }
 
@@ -580,8 +665,8 @@ int	conv_u(va_list *ap, char *flags_collector)
 	int		check_num;
 	int		len;
 
-	if (flags_collector)
-		printf("%s", flags_collector);
+/* 	if (flags_collector)
+		printf("%s", flags_collector); */
 	len = 0;
 	check_num = ft_oux_datatype(ap, flags_collector);
 	print_num = ft_itoa_dbase_u(check_num, 10);
@@ -631,31 +716,110 @@ char	*ft_itoa_hex(uintmax_t num, int base, char conversion)
 	return (str);
 }
 
-char	*ft_x_manager(char *print_num, char *flags)
+/* char	*ft_hashtag_x(char *print_num, int check_num, char *flags, int w_or_p)
 {
-	int	width;
-	int	precision;
-	int	i;
+	char	*final_num;
+	int		i;
+
+	i = 0;
+	if (print_num[0] == '\0' || print_num[0] == '0')
+		final_num = ft_strdup("0");
+	if (ft_strchr(flags, '.'))
+	{
+		final_num = ft_o_precision(print_num, w_or_p);
+		final_num = ft_strjoin("0x", final_num);
+	}
+	else if (ft_strchr(flags, '-') || ft_strchr(flags, ft_isdigit(*flags)))
+	{
+		if (check_num != 0)
+		{
+			final_num = ft_strjoin("0x", print_num);
+			final_num = ft_o_width(final_num, flags, w_or_p);
+		}
+		final_num = ft_o_width(final_num, flags, w_or_p);
+	}
+	else
+		final_num = ft_strjoin("0x", print_num);
+	free (print_num);
+	return (final_num);
+} */
+
+char	*ft_hashtag_x(char *print_num, char conversion, char *flags, int w_or_p)
+{
+	char	*final_num;
+	int		i;
+
+	i = 0;
+	if (print_num[0] == '\0' || print_num[0] == '0')
+		final_num = ft_strdup("0");
+	if (ft_strchr(flags, '.'))
+	{
+		final_num = ft_o_precision(print_num, w_or_p);
+		final_num = ft_strjoin("0X", final_num);
+	}
+	else if (ft_strchr(flags, '-') || ft_strchr(flags, ft_isdigit(*flags)))
+	{
+		if (ft_strchr(flags, '0') && !ft_strchr(flags, '-'))
+		{
+			print_num = ft_o_width(print_num, flags, w_or_p);
+			print_num = ft_strsub(print_num, 2, ft_strlen(print_num));
+		}
+		if (conversion == 'x')
+			final_num = ft_strjoin("0x", print_num);
+		else if (conversion == 'X')
+			final_num = ft_strjoin("0X", print_num);
+		final_num = ft_o_width(final_num, flags, w_or_p);
+	}
+	else
+	{
+		if (conversion == 'x')
+			final_num = ft_strjoin("0x", print_num);
+		else if (conversion == 'X')
+			final_num = ft_strjoin("0X", print_num);
+	}
+	free(print_num);
+	return (final_num);
+}
+
+char	*ft_x_manager(char *print_num, int check_num, char *flags, char conversion) // SHORTEN - 5 extra lines
+{
+	int		width;
+	int		precision;
+	int		i;
+	char	*original_printnum;
 
 	i = 0;
 	precision = 0;
 	width = 0;
+	original_printnum = print_num;
 	if (ft_strchr("#-.", flags[i]))
 		i++;
 	if (ft_strchr(flags, '.'))
 	{
 		precision = ft_atoi(ft_strchr(flags, '.') + 1);
 		print_num = ft_o_precision(print_num, precision);
-	}
-	else if (ft_strchr(flags, '-') || ft_isdigit(flags[i]))
-	{
-		width = ft_atoi(&flags[i]);
-		if (ft_strchr(flags, '#') && *print_num != '0')
+		if (ft_strchr(flags, '#') && check_num != 0 && conversion == 'x')
 			print_num = ft_strjoin("0x", print_num);
-		print_num = ft_o_width(print_num, flags, width);
+		else if (ft_strchr(flags, '#') && check_num != 0 && conversion == 'X')
+			print_num = ft_strjoin("0X", print_num);
 	}
-	else if (ft_strchr(flags, '#') && *print_num != '0')
-		print_num = ft_strjoin("0x", print_num);
+	if (ft_strchr(flags, '-') || ft_isdigit(flags[i]))
+	{
+		if (ft_isdigit(flags[i]) != 1)
+			i++;
+		width = ft_atoi(&flags[i]);
+		if (ft_strchr(flags, '#') && check_num != 0)
+			print_num = ft_hashtag_x(print_num, conversion, flags, width);
+		else
+			print_num = ft_o_width(print_num, flags, width);
+	}
+	else if (ft_strchr(flags, '#') && check_num != 0)
+	{
+		if (conversion == 'x')
+			print_num = ft_strjoin("0x", print_num);
+		else if (conversion == 'X')
+			print_num = ft_strjoin("0X", print_num);
+	}
 	return (print_num);
 }
 
@@ -665,15 +829,16 @@ int	conv_x(va_list *ap, char *flags_collector, char conversion)
 	unsigned long long int		check_num;
 	int		len;
 
-	if (flags_collector)
-		printf("%s", flags_collector);
+/* 	if (flags_collector)
+		printf("<<<%s>>>", flags_collector); */
 	len = 0;
 	check_num = ft_oux_datatype(ap, flags_collector);
 	print_num = ft_itoa_hex(check_num, 16, conversion);
-	print_num = ft_x_manager(print_num, flags_collector);
+	print_num = ft_x_manager(print_num, check_num, flags_collector, conversion);
+	//printf("This is print num: %s\n", print_num);
 	ft_putstr(print_num);
 	len = ft_strlen(print_num);
-	free(print_num);
+	free(print_num);	
 	return (len);
 }
 
@@ -794,6 +959,7 @@ char	*ft_itoa_dibase(long int num, int base)
 	char	*str;
 	int		i;
 
+	//printf("This is dibased num: %ld\n", num);
 	if (base < 2 || base > 16)
 		return (NULL);
 	i = ft_numlen_dibase(num, base);
@@ -812,33 +978,31 @@ char	*ft_itoa_dibase(long int num, int base)
 	return (str);
 }
 
-int	ft_iszero(char *flags)
+char	*di_width_flags(char *flags, int check_num, int width, char *final_num)
 {
-	int	i;
-	int index_zero;
-	int	index_comp;
-
-	i = 0;
-	index_zero = -1;
-	index_comp = -1;
-	while (flags[i])
+	if (ft_strchr(flags, '+') && !ft_strchr(flags, '0') 
+	&& check_num >= 0)
 	{
-		if (flags[i] == '0')
-			index_zero = i;
-		if (flags[i] >= '1' && flags[i] >= '9')
-			index_comp = i;
-		if ((index_zero < index_comp) && index_zero != -1)
-			return (1);
-		i++;
+		final_num = ft_strsub(final_num, 1, width);
+		final_num = ft_strjoin(final_num, "+");
 	}
-	return (0);
+	else if ((ft_strchr(flags, '+') || ft_strchr(flags, ' ')) 
+	&& ft_strchr(flags, '0') && check_num >= 0)
+	{
+		final_num = ft_strsub(final_num, 1, width);
+		if (ft_strchr(flags, '+'))
+			final_num = ft_strjoin("+", final_num);
+		else if (ft_strchr(flags, ' '))
+			final_num = ft_strjoin(" ", final_num);
+	}
+	return (final_num);
 }
 
-char	*ft_di_width(char *print_num, int check_num, char *flags, int width)
+char	*ft_di_width(char *print_num, int check_num, char *flags, int width) // SHORTEN - 6 extra lines
 {
 	char	*final_num;
 	int		empty_spaces;
-	
+
 	if ((int)ft_strlen(print_num) < width)
 	{
 		empty_spaces = width - (int)ft_strlen(print_num);
@@ -846,37 +1010,43 @@ char	*ft_di_width(char *print_num, int check_num, char *flags, int width)
 		if (ft_strchr(flags, '-'))
 		{
 			final_num = ft_strcpy(final_num, print_num);
-			while (empty_spaces > 0)
-			{
+			if (ft_strchr(flags, '+'))
+				final_num = ft_strjoin("+", final_num);
+			while (empty_spaces-- > 0)
 				final_num = ft_strjoin(final_num, " ");
-				empty_spaces--;
-			}
 		}
 		else
 		{
-			while (empty_spaces > 0)
-			{	
+			if (check_num < 0 && (ft_strchr(flags, '0') || ft_strchr(flags, '+')))
+			{
+				//printf("This is print num: %s\n", final_num);
+				final_num = ft_strjoin("-", final_num);
+				print_num = ft_strsub(print_num, 1, ft_strlen(print_num));
+			}
+			final_num = dio_width_emptyspaces(empty_spaces, flags, final_num);
+			final_num = di_width_flags(flags, check_num, width, final_num);
+			/* 	while (empty_spaces-- > 0)
+			{
 				if (ft_iszero(flags))
 					final_num = ft_strjoin(final_num, "0");
 				else
 					final_num = ft_strjoin(final_num, " ");
-				empty_spaces--;
-			}
-			if (ft_strchr(flags, '+') && !ft_strchr(flags, '0') \
+			} */
+			/* 	if (ft_strchr(flags, '+') && !ft_strchr(flags, '0') 
 			&& check_num >= 0)
 			{
-				print_num = ft_strjoin("+", print_num);
 				final_num = ft_strsub(final_num, 1, width);
+				final_num = ft_strjoin(final_num, "+");
 			}
-			else if ((ft_strchr(flags, '+') || ft_strchr(flags, ' ')) && ft_strchr(flags, '0') \
-			&& check_num >= 0)
+			else if ((ft_strchr(flags, '+') || ft_strchr(flags, ' ')) 
+			&& ft_strchr(flags, '0') && check_num >= 0)
 			{
 				final_num = ft_strsub(final_num, 1, width);
 				if (ft_strchr(flags, '+'))
 					final_num = ft_strjoin("+", final_num);
 				else if (ft_strchr(flags, ' '))
 					final_num = ft_strjoin(" ", final_num);
-			}
+			} */
 			final_num = ft_strjoin(final_num, print_num);
 		}
 	}
@@ -939,15 +1109,17 @@ char	*ft_di_manager(char *print_num, int check_num, char *flags)
 		precision = ft_atoi(ft_strchr(flags, '.') + 1);
 		print_num = ft_di_precision(print_num, flags, precision, check_num);
 	}
-	else if (ft_strchr(flags, '-') || ft_isdigit(flags[i]) || \
-	ft_strchr(flags, '0') || ft_strchr(flags, ' '))
+	if (ft_strchr(flags, '-') || ft_isdigit(flags[i]) ||
+	ft_strchr(flags, '0'))
 	{
+		if (ft_isdigit(flags[i]) != 1)
+			i++;
 		width = ft_atoi(&flags[i]);
 		print_num = ft_di_width(print_num, check_num, flags, width);
 	}
-	else if (ft_strchr(flags, '+'))
+	else if (ft_strchr(flags, '+') && check_num >= 0)
 		print_num = ft_di_plus_flag(print_num);
-	else if (ft_strchr(flags, ' '))
+	else if (ft_strchr(flags, ' ') && check_num >= 0)
 		print_num = ft_di_space_flag(print_num);
 	return (print_num);
 }
@@ -958,8 +1130,8 @@ int	conv_d_i(va_list *ap, char *flags_collector)
 	int		check_num;
 	int		len;
 
-	if (flags_collector)
-		printf("<<%s>>", flags_collector);
+ /* 	if (flags_collector)
+		printf("<<%s>>", flags_collector); */
 	len = 0;
 	check_num = ft_di_datatype(ap, flags_collector);
 	print_num = ft_itoa_dibase(check_num, 10);
@@ -995,15 +1167,18 @@ long double	ft_round(long double check_num, int precision)
 	long double	rounder;
 
 	rounder = .5;
+	//printf("This is string num: %s\n", string_num);
 	while (precision > 0)
 	{
 		rounder = rounder / 10;
 		precision--;
 	}
+	//printf("This is original num: %Lf\n", check_num);
 	if (check_num >= 0)
 		rounded_num = check_num + rounder;
 	else
 		rounded_num = check_num - rounder;
+	//printf("<<%Lf>>\n", rounded_num);
 	return (rounded_num);
 }
 
@@ -1058,9 +1233,13 @@ char	*ft_itoa_float(long double check_num, int precision)
 	long int	num;
 
 	num = check_num;
+	//printf("<<<%Lf>>>", check_num);
 	before_point = ft_itoa_dibase(num, 10);
+/* 	if (before_point[0] == '0' && check_num == -0.)
+		before_point = ft_strjoin("-", before_point); */
 	after_point = ft_float_convertor(check_num, num, precision);
 	final_str = ft_strjoin(before_point, after_point);
+	//printf("%s\n", final_str);
 	free(before_point);
 	free(after_point);
 	return (final_str);
@@ -1070,23 +1249,29 @@ int	conv_f(va_list *ap, char *flags_collector)
 {
 	char			*print_num;
 	long double		check_num;
+	//long double				original_num;
 	int				len;
 	int				precision;
 
-	if (flags_collector)
-		printf("%s", flags_collector);
+	len = 0;
+/* 	if (flags_collector)
+		printf("%s", flags_collector); */
 	if (ft_strchr(flags_collector, '.'))
 		precision = ft_atoi(ft_strchr(flags_collector, '.') + 1);
 	else
 		precision = 6;
-	len = 0;
 	if (ft_strchr(flags_collector, 'L'))
 		check_num = va_arg(*ap, long double);
 	else
 		check_num = va_arg(*ap, double);
+	//original_num = check_num;
+	//printf("This is the original number: %Lf\n", original_num);
 	check_num = ft_round(check_num, precision);
+	//printf("^^%Lf^^\n", check_num);
 	print_num = ft_itoa_float(check_num, precision);
 	print_num = ft_cut_leftover(print_num, precision);
+	/* if (original_num == -0)
+		print_num = ft_strjoin("-", print_num); */
 	ft_putstr(print_num);
 	len = ft_strlen(print_num);
 	free(print_num);
@@ -1103,10 +1288,10 @@ int ft_printf(const char *format, ...)
 	int		in_conversion;
 
 	char_counter = 0;
-	i = 0;
+	i = -1;
 	in_conversion = 0;
 	va_start(ap, format);
-	while (format[i++])
+	while (format[++i])
 		if (format[i] == '%' && !in_conversion)
 		{
 			in_conversion = 1;

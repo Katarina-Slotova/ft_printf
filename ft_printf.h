@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_printf.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+        */
+/*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:13:03 by katarinka         #+#    #+#             */
-/*   Updated: 2022/03/03 14:25:19 by kslotova         ###   ########.fr       */
+/*   Updated: 2022/03/11 11:39:02 by katarinka        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int		conv_o(va_list *ap, char *flags_collector);
 int		conv_u(va_list *ap, char *flags_collector);
 int		conv_x(va_list *ap, char *flags_collector, char conversion);
 int		conv_f(va_list *ap, char *flags_collector);
-int		conv_percent();
+int		conv_percent(char *flags_collector);
 int		conversion_solver(const char *format, va_list *ap);
 int		is_conversion(char c);
 int		is_flag(char c);
