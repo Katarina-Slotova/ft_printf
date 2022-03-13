@@ -6,7 +6,7 @@
 /*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/03/11 14:45:20 by katarinka        ###   ########.fr       */
+/*   Updated: 2022/03/13 19:14:32 by katarinka        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,9 +73,11 @@ int	conversion_solver(const char *format, va_list *ap)
 	char	conversion;
 	char	*flags_collector;
 	int		i_flags;
+	int		result;
 
 	i = 1;
 	i_flags = 0;
+	result = 0;
 	flags_collector = (char *)malloc(sizeof(char));
 	while (format[i] && !is_conversion(format[i]))
 	{
@@ -103,9 +105,10 @@ int	conversion_solver(const char *format, va_list *ap)
 	if (conversion == '%')
 		return (conv_percent());
 	return (0); */
-	return (conversion_identifier(conversion, flags_collector, ap));
+	result = conversion_identifier(conversion, flags_collector, ap);
+	free(flags_collector);
+	return (result);
 }
-
 
 ////////////////////////////////////////////CONV_C////////////////////////////////////////////////////////////////
 
@@ -166,7 +169,7 @@ int	conv_c(va_list *ap, char *flags_collector)
 	len = 0;
 	c = va_arg(*ap, int);
 	if (ft_strchr(flags_collector, '.') || ft_strchr(flags_collector, ' '))
-		ft_putstr("");
+		ft_putstr("^@");
 	else
 		len = ft_char_manager(c, flags_collector);
 	return (len);
@@ -344,29 +347,29 @@ int	conv_s(va_list *ap, char *flags_collector)
 unsigned long long int	ft_oux_datatype(va_list *ap, char *flags)
 {
 	if (ft_strstr(flags, "hh"))
-		return (unsigned char)va_arg(*ap, unsigned long long int);
+		return (unsigned char)va_arg(*ap, unsigned int);
 	else if (ft_strchr(flags, 'h'))
-		return (unsigned short int)va_arg(*ap, unsigned long long int);
+		return (unsigned short int)va_arg(*ap, unsigned int);
 	else if (ft_strchr(flags, 'l'))
-		return (unsigned long int)va_arg(*ap, unsigned long long int);
+		return va_arg(*ap, unsigned long int);
 	else if (ft_strstr(flags, "ll"))
 		return va_arg(*ap, unsigned long long int);
 	else
-		return (unsigned int)va_arg(*ap, unsigned long long int);
+		return va_arg(*ap, unsigned int);
 }
 
 long long int	ft_di_datatype(va_list *ap, char *flags)
 {
 	if (ft_strstr(flags, "hh"))
-		return (signed char)va_arg(*ap, long long int);
+		return (signed char)va_arg(*ap, int);
 	else if (ft_strchr(flags, 'h'))
-		return (short int)va_arg(*ap, long long int);
+		return (short int)va_arg(*ap, int);
 	else if (ft_strchr(flags, 'l'))
-		return (long int)va_arg(*ap, long long int);
+		return va_arg(*ap, long int);
 	else if (ft_strstr(flags, "ll"))
 		return va_arg(*ap, long long int);
 	else
-		return (int)va_arg(*ap, unsigned long long int);
+		return va_arg(*ap, int);
 }
 
 int	ft_iszero(char *flags)
@@ -378,7 +381,8 @@ int	ft_iszero(char *flags)
 	i = 0;
 	index_zero = -1;
 	index_comp = -1;
-	while (flags[i])
+	//printf("Flags: %s\n", flags);
+	while (flags[i] && flags[i] != '.')
 	{
 		if (flags[i] == '0')
 			index_zero = i;
@@ -405,7 +409,7 @@ char	*dio_width_emptyspaces(int empty_spaces, char *flags, char *final_num)
 
 ////////////////////////////////////////////CONV_O////////////////////////////////////////////////////////////////
 
-int	ft_numlen_base_u(uintmax_t num, int base)
+int	ft_numlen_base_u(unsigned long long int num, int base)
 {
 	int	len;
 	
@@ -418,7 +422,7 @@ int	ft_numlen_base_u(uintmax_t num, int base)
 	return (len);
 }
 
-char	ft_base_u(unsigned int num, int base)
+char	ft_base_u(unsigned long long int num, int base)
 {
 	char	*max_base_chars;
 	int		i;
@@ -428,7 +432,7 @@ char	ft_base_u(unsigned int num, int base)
 	return (max_base_chars[i]);
 }
 
-char	*ft_itoa_base_u(unsigned int num, int base)
+char	*ft_itoa_base_u(unsigned long long int num, int base)
 {
 	char	*str;
 	int		i;
@@ -488,7 +492,9 @@ char	*ft_o_precision(char *print_num, int precision)
 	char	*final_num;
 	int		zeroed_spaces;
 
-	if ((int)ft_strlen(print_num) < precision)
+	if (ft_strcmp(print_num, "0") == 0 && precision == 0)
+		final_num = ft_strnew(1);
+	else if ((int)ft_strlen(print_num) < precision)
 	{
 		final_num = ft_strnew(precision);
 		zeroed_spaces = precision - ft_strlen(print_num);
@@ -597,7 +603,7 @@ char	*ft_o_manager(char *print_num, int check_num, char *flags) //SHORTEN - extr
 int	conv_o(va_list *ap, char *flags_collector)
 {
 	char	*print_num;
-	int		check_num;
+	unsigned long long int		check_num;
 	int		len;
 
 	len = 0;
@@ -612,7 +618,7 @@ int	conv_o(va_list *ap, char *flags_collector)
 
 ////////////////////////////////////////////CONV_U////////////////////////////////////////////////////////////////
 
-char	*ft_itoa_dbase_u(uintmax_t num, int base)
+char	*ft_itoa_dbase_u(unsigned long long int num, int base)
 {
 	char	*str;
 	int		i;
@@ -662,7 +668,7 @@ char	*ft_u_manager(char *print_num, char *flags)
 int	conv_u(va_list *ap, char *flags_collector)
 {
 	char	*print_num;
-	int		check_num;
+	unsigned long long int		check_num;
 	int		len;
 
 /* 	if (flags_collector)
@@ -670,6 +676,7 @@ int	conv_u(va_list *ap, char *flags_collector)
 	len = 0;
 	check_num = ft_oux_datatype(ap, flags_collector);
 	print_num = ft_itoa_dbase_u(check_num, 10);
+	//printf("This is check num after datatype check: %s\n", print_num);
 	print_num = ft_u_manager(print_num, flags_collector);
 	ft_putstr(print_num);
 	len = ft_strlen(print_num);
@@ -959,7 +966,6 @@ char	*ft_itoa_dibase(long int num, int base)
 	char	*str;
 	int		i;
 
-	//printf("This is dibased num: %ld\n", num);
 	if (base < 2 || base > 16)
 		return (NULL);
 	i = ft_numlen_dibase(num, base);
@@ -980,13 +986,13 @@ char	*ft_itoa_dibase(long int num, int base)
 
 char	*di_width_flags(char *flags, int check_num, int width, char *final_num)
 {
-	if (ft_strchr(flags, '+') && !ft_strchr(flags, '0') 
+	if (ft_strchr(flags, '+') && !ft_strchr(flags, '0') && !ft_strchr(flags, '.')
 	&& check_num >= 0)
 	{
 		final_num = ft_strsub(final_num, 1, width);
 		final_num = ft_strjoin(final_num, "+");
 	}
-	else if ((ft_strchr(flags, '+') || ft_strchr(flags, ' ')) 
+	else if ((ft_strchr(flags, '+') || ft_strchr(flags, ' ')) && !ft_strchr(flags, '.')
 	&& ft_strchr(flags, '0') && check_num >= 0)
 	{
 		final_num = ft_strsub(final_num, 1, width);
@@ -1010,7 +1016,7 @@ char	*ft_di_width(char *print_num, int check_num, char *flags, int width) // SHO
 		if (ft_strchr(flags, '-'))
 		{
 			final_num = ft_strcpy(final_num, print_num);
-			if (ft_strchr(flags, '+'))
+			if (ft_strchr(flags, '+') && !ft_strchr(flags, '.'))
 				final_num = ft_strjoin("+", final_num);
 			while (empty_spaces-- > 0)
 				final_num = ft_strjoin(final_num, " ");
@@ -1024,6 +1030,7 @@ char	*ft_di_width(char *print_num, int check_num, char *flags, int width) // SHO
 				print_num = ft_strsub(print_num, 1, ft_strlen(print_num));
 			}
 			final_num = dio_width_emptyspaces(empty_spaces, flags, final_num);
+			//printf("This is the final number after empty spaces: %s\n", final_num);
 			final_num = di_width_flags(flags, check_num, width, final_num);
 			/* 	while (empty_spaces-- > 0)
 			{
@@ -1073,7 +1080,9 @@ char	*ft_di_precision(char *print_num, char *flags, int precision, int check_num
 	char	*final_num;
 	int		zeroed_spaces;
 
-	if ((int)ft_strlen(print_num) < precision)
+	if (ft_strcmp(print_num, "0") == 0 && precision == 0)
+		final_num = ft_strnew(1);
+	else if ((int)ft_strlen(print_num) < precision)
 	{
 		final_num = ft_strnew(precision);
 		zeroed_spaces = precision - ft_strlen(print_num);
@@ -1090,11 +1099,13 @@ char	*ft_di_precision(char *print_num, char *flags, int precision, int check_num
 		final_num = ft_strjoin("+", final_num);
 	if (ft_strchr(flags, ' ') && !ft_strchr(flags, '+') && check_num >= 0)
 		final_num = ft_di_space_flag(final_num);
+	//printf("This is the number after precision: <<%s>>\n", final_num);
 	return (final_num);	
 }
 
 char	*ft_di_manager(char *print_num, int check_num, char *flags)
 {
+	int	diff;
 	int	width;
 	int	precision;
 	int	i;
@@ -1106,35 +1117,57 @@ char	*ft_di_manager(char *print_num, int check_num, char *flags)
 		i++;
 	if (ft_strchr(flags, '.'))
 	{
+		if (ft_strchr(print_num, '-'))
+			print_num = ft_strsub(print_num, 1, ft_strlen(print_num));
 		precision = ft_atoi(ft_strchr(flags, '.') + 1);
 		print_num = ft_di_precision(print_num, flags, precision, check_num);
+		if (check_num < 0)
+			print_num = ft_strjoin("-", print_num);
 	}
-	if (ft_strchr(flags, '-') || ft_isdigit(flags[i]) ||
-	ft_strchr(flags, '0'))
+	if (ft_strchr(flags, '-') || ft_isdigit(flags[i]) || ft_strchr(flags, '0'))
 	{
 		if (ft_isdigit(flags[i]) != 1)
 			i++;
 		width = ft_atoi(&flags[i]);
 		print_num = ft_di_width(print_num, check_num, flags, width);
+		//printf("This is the print num after width: %s\n", print_num);
 	}
 	else if (ft_strchr(flags, '+') && check_num >= 0)
 		print_num = ft_di_plus_flag(print_num);
 	else if (ft_strchr(flags, ' ') && check_num >= 0)
 		print_num = ft_di_space_flag(print_num);
+	if ((precision < width) && ft_strchr(flags, '.') && ft_strchr(flags, '0') && !ft_strchr(flags, '+') && !ft_strchr(flags, '-'))
+	{
+		//printf("Hereeeeeeeeee\n");
+		diff = width - precision;
+		print_num = ft_strsub(print_num, diff, ft_strlen(print_num));
+		while (diff > 0)
+		{
+			if (check_num < 0)
+			{
+				print_num = ft_strjoin("-", print_num);
+				diff--;
+			}
+			if (diff > 0)
+				print_num = ft_strjoin(" ", print_num);
+			diff--;
+		}
+	}
 	return (print_num);
 }
 
 int	conv_d_i(va_list *ap, char *flags_collector)
 {
-	char	*print_num;
-	int		check_num;
-	int		len;
+	char			*print_num;
+	long long int	check_num;
+	int				len;
 
- /* 	if (flags_collector)
-		printf("<<%s>>", flags_collector); */
+/*    	if (flags_collector)
+		printf("<<%s>>", flags_collector);  */
 	len = 0;
 	check_num = ft_di_datatype(ap, flags_collector);
 	print_num = ft_itoa_dibase(check_num, 10);
+	//printf(">check_num=%lld\n>print_num = %s\n", check_num, print_num);
 	print_num = ft_di_manager(print_num, check_num, flags_collector);
 	ft_putstr(print_num);
 	len = ft_strlen(print_num);

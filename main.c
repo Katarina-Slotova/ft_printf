@@ -10,7 +10,9 @@ int main ()
 	//int *ptr = &x;
 	//int num = 42;
 	//char c = 23450;
-	ft_printf("%5d", -42);
+	//long x = 2147483648;
+	printf("%.0p, %.p", 0, 0);
+	//ft_printf("|%.d|", 0);
 	//ft_printf("%Lf\n", -0.0L);
     /* Demonstrate with numbers. */
     //ft_printf ("<%s> is not justified.\n", x);
