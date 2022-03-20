@@ -6,7 +6,7 @@
 /*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/03/17 16:41:40 by katarinka        ###   ########.fr       */
+/*   Updated: 2022/03/20 21:27:33 by katarinka        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,6 +152,11 @@ int	ft_char_manager(char c, char *flags)
 			i++;
 		if (ft_isdigit(flags[i]))
 			width = ft_atoi(flags + i);
+		else
+		{
+			ft_putchar(c);
+			return (1);
+		}
 		return (ft_char_width(c, flags, width));
 	} 
 	else
@@ -168,10 +173,7 @@ int	conv_c(va_list *ap, char *flags_collector)
 	
 	len = 0;
 	c = va_arg(*ap, int);
-	if (ft_strchr(flags_collector, '.') || ft_strchr(flags_collector, ' '))
-		ft_putstr("^@");
-	else
-		len = ft_char_manager(c, flags_collector);
+	len = ft_char_manager(c, flags_collector);
 	return (len);
 }
 
@@ -1244,7 +1246,6 @@ long double	ft_round(long double check_num, int precision)
 	long double	rounder;
 
 	rounder = .5;
-	//printf("This is string num: %s\n", string_num);
 	while (precision > 0)
 	{
 		rounder = rounder / 10;
@@ -1255,11 +1256,12 @@ long double	ft_round(long double check_num, int precision)
 		rounded_num = check_num + rounder;
 	else
 		rounded_num = check_num - rounder;
+	//printf("This is check num: %Lf\n", check_num);
 	//printf("<<%Lf>>\n", rounded_num);
 	return (rounded_num);
 }
 
-static int	ft_len_double(long n, int precision)
+static int	ft_len_double(long double n, int precision)
 {
 	int i;
 
@@ -1274,7 +1276,7 @@ static int	ft_len_double(long n, int precision)
 	return (i + precision + 1);
 }
 
-char	*ft_float_convertor(long double check_num, long int num, int precision)
+char	*ft_float_convertor(long double check_num, long long int num, int precision)
 {
 	char	*final_str;
 	int		i;
@@ -1282,6 +1284,7 @@ char	*ft_float_convertor(long double check_num, long int num, int precision)
 
 	i = 1;
 	len = ft_len_double(check_num, precision);
+	//printf("Len = %d\n", len);
 	final_str = ft_strnew(len);
 	if (!final_str)
 		return (NULL);
@@ -1296,7 +1299,9 @@ char	*ft_float_convertor(long double check_num, long int num, int precision)
 	{
 		check_num = check_num * 10;
 		num = check_num;
+		//printf("Check num = %lld\n",  num);
 		final_str[i] = (num % 10) + '0';
+		check_num = check_num - num;
 		i++;
 	}
 	//printf("Final str: %s\n", final_str);
@@ -1308,7 +1313,7 @@ char	*ft_itoa_float(long double check_num, int precision)
 	char		*before_point;
 	char		*after_point;
 	char		*final_str;
-	long int	num;
+	long long int	num;
 
 	num = check_num;
 	//printf("<<<%Lf>>>", check_num);
@@ -1329,6 +1334,7 @@ char	*ft_f_precision(char *print_num, int precision, char *flags)
 	int		empty_spaces;
 
 	empty_spaces = 0;
+	//printf("This is print num: %s\n", print_num);
 	if (ft_strcmp(print_num, "+0") == 0 && precision == 0)
 		final_num = ft_strdup("+");
 	else if ((int)ft_strlen(print_num) <= precision)
@@ -1360,12 +1366,13 @@ char	*ft_f_width(char *print_num, long double check_num, char *flags, int width)
 
 	empty_spaces = 0;
 	i = 0;
+	//printf("This is print num: <<%s>>\n", print_num);
 	if (((int)ft_strlen(print_num) < width))
 	{
 		empty_spaces = width - (int)ft_strlen(print_num);
 		//printf("Empty spaces: %d\n", empty_spaces);
 		final_num = ft_strnew(width);
-		if (ft_strchr(flags, '0') && check_num >= 0 && (ft_strchr(flags, ' ') || (ft_strchr(flags, '+'))))
+		if (ft_iszero(flags) && check_num >= 0 && (ft_strchr(flags, ' ') || (ft_strchr(flags, '+'))))
 			empty_spaces--;
 		while (empty_spaces > 0)
 		{
@@ -1375,7 +1382,6 @@ char	*ft_f_width(char *print_num, long double check_num, char *flags, int width)
 				final_num = ft_strjoin(" ", final_num);
 			empty_spaces--;
 		}
-		//printf("This is final str: <<%s>>\n", final_num);
 		if (ft_strchr(print_num, '-') && ft_strchr(final_num, '0'))
 				print_num = ft_strsub(print_num, 1, ft_strlen(print_num));
 		final_num = ft_strjoin(final_num, print_num);
@@ -1384,44 +1390,90 @@ char	*ft_f_width(char *print_num, long double check_num, char *flags, int width)
 	}
 	else
 		final_num = ft_strdup(print_num);
+	//printf("This is final str: <<%s>>\n", final_num);
+	//printf("here\n");
 	free(print_num);
 	return (final_num);
 }
 
-char	*ft_f_manager(char *print_num, long double check_num, char *flags)
+char	*ft_f_manager(char *print_num, long double check_num, char *flags, int precision, int len)
 {
 	int	width;
-	int	precision;
 	int	i;
+	int	len_printnum;
 
 	i = 0;
-	precision = 0;
 	width = 0;
+	len_printnum = 0;
 	if (ft_strchr("0+-. ", flags[i]))
 		i++;
-	if (ft_strchr(flags, '.'))
-		precision = ft_atoi(ft_strchr(flags, '.') + 1);
-	else
-		precision = 6;
 	if (ft_strchr(print_num, '-'))
 		print_num = ft_strsub(print_num, 1, ft_strlen(print_num));
-	print_num = ft_f_precision(print_num, precision, flags);
+	if (ft_strcmp(print_num, "inf") != 0 && ft_strcmp(print_num, "-inf") != 0 && ft_strcmp(print_num, "nan") != 0)
+		print_num = ft_f_precision(print_num, precision, flags);
 	if (check_num < 0)
 			print_num = ft_strjoin("-", print_num);
-	//printf("This is print num: %s\n", print_num);
 	if (ft_strchr(flags, '-') || ft_isdigit(flags[i]) || ft_iszero(flags))
 	{
+		//printf("This is print num: %s\n", print_num);
         if (ft_isdigit(flags[i]) != 1)
 			i++;
 		width = ft_atoi(&flags[i]);
-		print_num = ft_f_width(print_num, check_num, flags, width);
+		if ((ft_strstr(print_num, "in") || (ft_strstr(print_num, "na"))) && width > 0 && (precision >= 0 || flags[i--] == '.'))
+			print_num = ft_strdup(print_num);	
+		else
+			print_num = ft_f_width(print_num, check_num, flags, width);
 	}
-	//printf("This is print num: %s\n", final_num);
-	if (ft_strchr(flags, '+') && check_num >= 0)
+	//printf("This is print num: %s\n", print_num);
+	if (len == 1 && !ft_strchr(print_num, '-'))
+	{
+		//printf("print num = %s\n", print_num);
+		if (ft_iszero(flags) && !ft_strchr(flags, '+') && !ft_strchr(flags, ' '))
+			print_num = ft_strsub(print_num, 1, (int)ft_strlen(print_num));
+		while (*print_num == ' ')
+			print_num++;	
+		print_num = ft_strjoin("-", print_num);
+		len_printnum = (int)ft_strlen(print_num);
+		if (len_printnum < width)
+		{
+			while (len_printnum < width)
+			{
+				print_num = ft_strjoin(" ", print_num);
+				//printf("This is print num = %s\n", print_num);
+				width--;
+			}
+		}
+	}
+	if (ft_strchr(flags, '+') && len == 0)
 		print_num = ft_strjoin("+", print_num);
-	if (ft_strchr(flags, ' ') && check_num >= 0 && !ft_strchr(flags, '+'))
+	if (ft_strchr(flags, ' ') && len == 0 && !ft_strchr(flags, '+'))
 		print_num = ft_strjoin(" ", print_num);
 	return (print_num);
+}
+
+int	ft_x_to_power_n (int precision)
+{
+    int	i;
+    int	number;
+
+	number = 1;
+	i = 0;
+	while (i < precision)
+	{
+		number *= 10;
+		i++;
+	}
+	return (number);
+}
+
+int		ft_isnegative(double nbr)
+{
+	unsigned long long	*double_as_int;
+	unsigned char		sign;
+
+	double_as_int = (unsigned long long*)&nbr;
+	sign = (unsigned char)(*double_as_int >> 63);
+	return ((sign == 0) ? 0 : 1);
 }
 
 int	conv_f(va_list *ap, char *flags_collector)
@@ -1430,21 +1482,53 @@ int	conv_f(va_list *ap, char *flags_collector)
 	long double		check_num;
 	int				len;
 	int				precision;
+	long double		new_num;
+ 	double x;
+	double y;
+	double z;
 
 	len = 0;
+ 	x = 1;
+	z = -1;
+	y = 0;
 /* 	if (flags_collector)
 		printf("%s", flags_collector); */
 	if (ft_strchr(flags_collector, 'L'))
 		check_num = va_arg(*ap, long double);
 	else
 		check_num = va_arg(*ap, double);
+	len = ft_isnegative(check_num);
+	//printf("This is check num: %d\n", len);
 	if (ft_strchr(flags_collector, '.'))
 		precision = ft_atoi(ft_strchr(flags_collector, '.') + 1);
 	else
 		precision = 6;
-	check_num = ft_round(check_num, precision);
-	print_num = ft_itoa_float(check_num, precision);
-	print_num = ft_f_manager(print_num, check_num, flags_collector);
+	new_num = check_num * ft_x_to_power_n(precision);
+	//diff = new_num - (int)new_num;
+	//printf("This is diff = %Lf\n", new_num - (int)new_num);
+	if (new_num - (int)new_num > 0.5 || new_num - (int)new_num < -0.5)
+		check_num = ft_round(check_num, precision);
+	else if (new_num - (int)new_num == 0.5 || new_num - (int)new_num == -0.5)
+	{
+		if (((int)new_num + 1) % 2 != 0)
+		{
+			//printf("This is print num: %Lf\n", new_num);
+			check_num = new_num / ft_x_to_power_n(precision);
+		}
+		else
+			check_num = ft_round(check_num, precision);
+	}
+	else
+		check_num = ft_round(check_num, precision);
+ 	if (check_num == x/y)
+		print_num = ft_strdup("inf");
+	else if (check_num == z/y)
+		print_num = ft_strdup("-inf");
+	else if (check_num != check_num)
+		print_num = ft_strdup("nan");
+	else
+		print_num = ft_itoa_float(check_num, precision);
+	print_num = ft_f_manager(print_num, check_num, flags_collector, precision, len);
 	ft_putstr(print_num);
 	len = ft_strlen(print_num);
 	free(print_num);
