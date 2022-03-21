@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_printf.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: katarinka <katarinka@student.42.fr>        +#+  +:+       +#+        */
+/*   By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by katarinka         #+#    #+#             */
-/*   Updated: 2022/03/20 21:27:33 by katarinka        ###   ########.fr       */
+/*   Updated: 2022/03/21 18:17:29 by kslotova         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,8 @@ int	conversion_solver(const char *format, va_list *ap)
 	i = 1;
 	i_flags = 0;
 	result = 0;
-	flags_collector = (char *)malloc(sizeof(char));
+	flags_collector = NULL;
+	flags_collector = ft_strnew(20);
 	while (format[i] && !is_conversion(format[i]))
 	{
 		if (is_flag(format[i]))
@@ -600,7 +601,7 @@ char	*ft_o_manager(char *print_num, unsigned long long check_num, char *flags) /
 	}
 	if (ft_strchr(flags, '-') || ft_isdigit(*flags) || ft_strchr(flags, '#'))
 	{
-		while (ft_isdigit(flags[i]) != 1 && !ft_strchr(flags, 'h'))
+		while (flags[i] && ft_isdigit(flags[i]) != 1 && !ft_strchr(flags, 'h'))
 			i++;
 		width = ft_atoi(&flags[i]);
 		if (width < 0)
@@ -837,7 +838,7 @@ char	*ft_x_manager(char *print_num, int check_num, char *flags, char conversion)
 		else
 			print_num = ft_o_width(print_num, flags, width);
 	}
-	else if (ft_strchr(flags, '#') && check_num != 0)
+	else if (ft_strchr(flags, '#') && check_num != 0 && !ft_strchr(flags, '.'))
 	{
 		if (conversion == 'x')
 			print_num = ft_strjoin("0x", print_num);
@@ -915,15 +916,57 @@ char	*ft_ptr_width(char *ptr, char *flags, int width)
 	return (final_str);
 }
 
+char	*ft_ptr_precision(char *ptr, int precision)
+{
+	char	*final_str;
+	int		empty_spaces;
+	
+	empty_spaces = 0;
+	empty_spaces = precision - (int)ft_strlen(ptr);
+	final_str = ft_strnew(precision);
+	if (ft_strequ(ptr, "0x0") && precision == 0)
+	{
+		free(ptr);
+		return (ft_strdup("0x"));
+	}
+	else if ((int)ft_strlen(ptr) < precision)
+	{
+		while (empty_spaces > 0)
+		{
+			final_str = ft_strjoin("0", final_str);
+			empty_spaces--;
+		}
+		final_str = ft_strjoin(final_str, ptr);
+	}
+/* 		else
+		{
+			while (empty_spaces > 0)
+			{
+				final_str = ft_strjoin(final_str, "0");
+				empty_spaces--;
+			}
+		} */
+	else
+		final_str = ft_strdup(ptr);
+	return (final_str);
+}
+
 char	*ft_ptr_manager(char *ptr, char *flags)
 {
 	int	i;
 	int	width;
+	int	precision;
 
 	i = 0;
 	width = 0;
-	if (ft_strchr("-", flags[i]))
+	precision = 0;
+	if (ft_strchr("-.", flags[i]))
 		i++;
+	if (ft_strchr(flags, '.'))
+	{
+		precision = ft_atoi(ft_strchr(flags, '.') + 1);
+		ptr = ft_ptr_precision(ptr, precision);
+	}
 	if (ft_strchr(flags, '-') || ft_isdigit(flags[i]))
 	{
 		width = ft_atoi(flags + i);
@@ -1016,7 +1059,7 @@ char	*di_width_flags(char *flags, long long int check_num, int width, char *fina
 		final_num = ft_strsub(final_num, 1, width);
 		if (ft_strchr(flags, '+'))
 			final_num = ft_strjoin("+", final_num);
-		else if (ft_strchr(flags, ' '))
+		else if (ft_strchr(flags, ' ') && !ft_iszero(flags))
 			final_num = ft_strjoin(" ", final_num);
 	}
 	return (final_num);
