@@ -6,7 +6,7 @@
 /*   By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by kslotova          #+#    #+#             */
-/*   Updated: 2022/03/23 10:59:11 by kslotova         ###   ########.fr       */
+/*   Updated: 2022/03/25 14:58:04 by kslotova         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,131 @@ int	conversion_solver(const char *format, va_list *ap)
 	result = conversion_identifier(conversion, flags_collector, ap);
 	free(flags_collector);
 	return (result);
+}
+
+////////////////////////////////////////////GENERAL FUNCTIONS////////////////////////////////////////////////////////////////
+
+unsigned long long int	ft_oux_datatype(va_list *ap, char *flags)
+{
+	if (ft_strstr(flags, "hh"))
+		return (unsigned char)va_arg(*ap, unsigned int);
+	else if (ft_strchr(flags, 'h'))
+		return (unsigned short int)va_arg(*ap, unsigned int);
+	else if (ft_strchr(flags, 'l'))
+		return va_arg(*ap, unsigned long int);
+	else if (ft_strstr(flags, "ll"))
+		return va_arg(*ap, unsigned long long int);
+	else
+		return va_arg(*ap, unsigned int);
+}
+
+long long int	ft_di_datatype(va_list *ap, char *flags)
+{
+	if (ft_strstr(flags, "hh"))
+		return (signed char)va_arg(*ap, int);
+	else if (ft_strchr(flags, 'h'))
+		return (short int)va_arg(*ap, int);
+	else if (ft_strchr(flags, 'l'))
+		return va_arg(*ap, long int);
+	else if (ft_strstr(flags, "ll"))
+		return va_arg(*ap, long long int);
+	else
+		return va_arg(*ap, int);
+}
+
+int	ft_iszero(char *flags)
+{
+	int	i;
+	int index_zero;
+	int	index_comp;
+
+	i = 0;
+	index_zero = -1;
+	index_comp = -1;
+	//printf("Flags: %s\n", flags);
+	while (flags[i] && flags[i] != '.')
+	{
+		if (flags[i] == '0')
+			index_zero = i;
+		if (flags[i] >= '1' && flags[i] <= '9')
+			index_comp = i;
+		if ((index_zero < index_comp) && index_zero != -1)
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
+char	*ft_strjoin_free_s1(char *s1, char *s2)
+{
+	unsigned int	i;
+	unsigned int	j;
+	char			*ret;
+
+	ret = ft_strnew(ft_strlen(s1) + ft_strlen(s2));
+	if (s1 && s2)
+	{
+		if (ret != NULL)
+		{
+			i = 0;
+			j = 0;
+			while (s1[i])
+			{
+				ret[i] = s1[i];
+				i++;
+			}
+			while (s2[j])
+				ret[i++] = s2[j++];
+			ret[i] = '\0';
+			free(s1);
+			return (ret);
+		}
+	}
+	return (NULL);
+}
+
+char	*ft_strjoin_free_s2(char *s1, char *s2)
+{
+	unsigned int	i;
+	unsigned int	j;
+	char			*ret;
+
+	//printf("This is ret value: %s\n", s2);
+	ret = ft_strnew(ft_strlen(s1) + ft_strlen(s2));
+	if (s1 && s2)
+	{
+		if (ret != NULL)
+		{
+			i = 0;
+			j = 0;
+			while (s1[i])
+			{
+				ret[i] = s1[i];
+				i++;
+			}
+			while (s2[j])
+				ret[i++] = s2[j++];
+			ret[i] = '\0';
+			free(s2);
+			return (ret);
+		}
+	}
+	return (NULL);
+}
+
+char	*dio_width_emptyspaces(int empty_spaces, char *flags, char *final_num)
+{
+	if (empty_spaces > 0)
+	{
+		while (empty_spaces-- > 0)
+		{
+			if (ft_iszero(flags) && !ft_strchr(flags, '.'))
+				final_num = ft_strjoin_free_s2("0", final_num);
+			else 
+				final_num = ft_strjoin_free_s1(final_num, " ");
+		}
+	}
+	return (final_num);
 }
 
 ////////////////////////////////////////////CONV_C////////////////////////////////////////////////////////////////
@@ -228,7 +353,7 @@ char	*ft_str_width_minus(char *flags, char *str, char *final_str, int empty_spac
 		final_str = ft_strcpy(final_str, str);
 		while (empty_spaces > 0)
 		{
-			final_str = ft_strjoin(final_str, " ");
+			final_str = ft_strjoin_free_s1(final_str, " ");
 			empty_spaces--;
 		}
 	}
@@ -236,10 +361,10 @@ char	*ft_str_width_minus(char *flags, char *str, char *final_str, int empty_spac
 	{
 		while (empty_spaces > 0)
 		{
-			final_str = ft_strjoin(final_str, " ");
+			final_str = ft_strjoin_free_s1(final_str, " ");
 			empty_spaces--;
 		}
-		final_str = ft_strjoin(final_str, str);
+		final_str = ft_strjoin_free_s1(final_str, str);
 	}
 	return (final_str);
 }
@@ -326,71 +451,6 @@ int	conv_s(va_list *ap, char *flags_collector)
 	return(len);
 }
 
-////////////////////////////////////////////GENERAL FUNCTIONS////////////////////////////////////////////////////////////////
-
-unsigned long long int	ft_oux_datatype(va_list *ap, char *flags)
-{
-	if (ft_strstr(flags, "hh"))
-		return (unsigned char)va_arg(*ap, unsigned int);
-	else if (ft_strchr(flags, 'h'))
-		return (unsigned short int)va_arg(*ap, unsigned int);
-	else if (ft_strchr(flags, 'l'))
-		return va_arg(*ap, unsigned long int);
-	else if (ft_strstr(flags, "ll"))
-		return va_arg(*ap, unsigned long long int);
-	else
-		return va_arg(*ap, unsigned int);
-}
-
-long long int	ft_di_datatype(va_list *ap, char *flags)
-{
-	if (ft_strstr(flags, "hh"))
-		return (signed char)va_arg(*ap, int);
-	else if (ft_strchr(flags, 'h'))
-		return (short int)va_arg(*ap, int);
-	else if (ft_strchr(flags, 'l'))
-		return va_arg(*ap, long int);
-	else if (ft_strstr(flags, "ll"))
-		return va_arg(*ap, long long int);
-	else
-		return va_arg(*ap, int);
-}
-
-int	ft_iszero(char *flags)
-{
-	int	i;
-	int index_zero;
-	int	index_comp;
-
-	i = 0;
-	index_zero = -1;
-	index_comp = -1;
-	//printf("Flags: %s\n", flags);
-	while (flags[i] && flags[i] != '.')
-	{
-		if (flags[i] == '0')
-			index_zero = i;
-		if (flags[i] >= '1' && flags[i] <= '9')
-			index_comp = i;
-		if ((index_zero < index_comp) && index_zero != -1)
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
-char	*dio_width_emptyspaces(int empty_spaces, char *flags, char *final_num)
-{
-	while (empty_spaces-- > 0)
-	{
-		if (ft_iszero(flags) && !ft_strchr(flags, '.'))
-			final_num = ft_strjoin(final_num, "0");
-		else 
-			final_num = ft_strjoin(" ", final_num);
-	}
-	return (final_num);
-}
-
 ////////////////////////////////////////////CONV_O////////////////////////////////////////////////////////////////
 
 int	ft_numlen_base_u(unsigned long long int num, int base)
@@ -448,9 +508,9 @@ char	*ft_o_width(char *print_num, char *flags, int width)
 		final_num = ft_strnew(width);
 		if (ft_strchr(flags, '-'))
 		{
-			final_num = ft_strjoin(final_num, print_num);
+			final_num = ft_strjoin_free_s1(final_num, print_num);
 			while (empty_spaces-- > 0)
-				final_num = ft_strjoin(final_num, " ");
+				final_num = ft_strjoin_free_s1(final_num, " ");
 		}
 		else
 		{
@@ -462,7 +522,7 @@ char	*ft_o_width(char *print_num, char *flags, int width)
 				else
 					final_num = ft_strjoin(final_num, " ");
 			} */
-			final_num = ft_strjoin(final_num, print_num);
+			final_num = ft_strjoin_free_s1(final_num, print_num);
 		}
 	}
 	else
@@ -484,8 +544,8 @@ char	*ft_o_precision(char *print_num, int precision)
 		final_num = ft_strnew(precision);
 		zeroed_spaces = precision - ft_strlen(print_num);
 		while (zeroed_spaces-- > 0)
-			final_num = ft_strjoin("0", final_num);
-		final_num = ft_strjoin(final_num, print_num);
+			final_num = ft_strjoin_free_s2("0", final_num);
+		final_num = ft_strjoin_free_s2(final_num, print_num);
 	}
 	else
 		final_num = ft_strdup(print_num);
@@ -505,7 +565,7 @@ char *flags, int i)
 	if (width < 0)
 		width *= -1;
 	if (ft_strchr(flags, '#') && !ft_strchr(flags, '.') && check_num != 0)
-		print_num = ft_strjoin("0", print_num);
+		print_num = ft_strjoin_free_s2("0", print_num);
 	print_num = ft_o_width(print_num, flags, width);
 	return (print_num);
 }
@@ -530,7 +590,7 @@ char *flags)
 		else 
 		{
 			if (ft_strchr(flags, '#'))
-				print_num = ft_strjoin("0", print_num);
+				print_num = ft_strjoin_free_s2("0", print_num);
 			print_num = ft_o_precision(print_num, precision);
 		}
 	}
@@ -672,9 +732,9 @@ char conversion, int width)
 		print_num = ft_strsub(print_num, 2, ft_strlen(print_num));
 	}
 	if (conversion == 'x')
-		final_num = ft_strjoin("0x", print_num);
+		final_num = ft_strjoin_free_s2("0x", print_num);
 	else if (conversion == 'X')
-		final_num = ft_strjoin("0X", print_num);
+		final_num = ft_strjoin_free_s2("0X", print_num);
 	final_num = ft_o_width(final_num, flags, width);
 	return (final_num);
 }
@@ -691,19 +751,18 @@ char	*ft_hashtag_x(char *print_num, char conversion, char *flags, int w_or_p)
 	{
 		final_num = ft_o_precision(print_num, w_or_p);
 		if (conversion == 'x')
-			final_num = ft_strjoin("0x", print_num);
+			final_num = ft_strjoin_free_s2("0x", print_num);
 		else if (conversion == 'X')
-			final_num = ft_strjoin("0X", print_num);
+			final_num = ft_strjoin_free_s2("0X", print_num);
 	}
 	if (ft_strchr(flags, '-') || ft_strchr(flags, ft_isdigit(*flags)))
 		final_num = ft_hashtag_width_x(print_num, final_num, flags, conversion, 
 		w_or_p);
 	else
 		if (conversion == 'x')
-			final_num = ft_strjoin("0x", print_num);
+			final_num = ft_strjoin_free_s2("0x", print_num);
 		else if (conversion == 'X')
-			final_num = ft_strjoin("0X", print_num);
-	free(print_num);
+			final_num = ft_strjoin_free_s2("0X", print_num);
 	return (final_num);
 }
 
@@ -737,18 +796,18 @@ char *flags, char conv)
 		precision = ft_atoi(ft_strchr(flags, '.') + 1);
 		print_num = ft_o_precision(print_num, precision);
 		if (ft_strchr(flags, '#') && check_num != 0 && conv == 'x')
-			print_num = ft_strjoin("0x", print_num);
+			print_num = ft_strjoin_free_s2("0x", print_num);
 		else if (ft_strchr(flags, '#') && check_num != 0 && conv == 'X')
-			print_num = ft_strjoin("0X", print_num);
+			print_num = ft_strjoin_free_s2("0X", print_num);
 	}
 	if (ft_strchr(flags, '-') || ft_isdigit(flags[i]))
 		print_num = ft_manage_x_width(print_num, check_num, flags, conv, i);
 	else if (ft_strchr(flags, '#') && check_num != 0 && !ft_strchr(flags, '.'))
 	{
 		if (conv == 'x')
-			print_num = ft_strjoin("0x", print_num);
+			print_num = ft_strjoin_free_s2("0x", print_num);
 		else if (conv == 'X')
-			print_num = ft_strjoin("0X", print_num);
+			print_num = ft_strjoin_free_s2("0X", print_num);
 	}
 	return (print_num);
 }
@@ -790,7 +849,7 @@ char	*ft_manage_ptr_emptyspcs(char *final_str, int empty_spaces)
 {
 	while (empty_spaces > 0)
 	{
-		final_str = ft_strjoin(final_str, " ");
+		final_str = ft_strjoin_free_s2(" ", final_str);
 		empty_spaces--;
 	}
 	return (final_str);
@@ -808,17 +867,18 @@ char	*ft_ptr_width(char *ptr, char *flags, int width)
 		empty_spaces = width - (int)ft_strlen(ptr);
 		if (ft_strchr(flags, '-'))
 		{
-			final_str = ft_strcpy(final_str, ptr);
 			final_str = ft_manage_ptr_emptyspcs(final_str, empty_spaces);
+			final_str = ft_strjoin_free_s2(ptr, final_str);
 		}
 		else
 		{
+			final_str = ft_strcpy(final_str, ptr);
 			final_str = ft_manage_ptr_emptyspcs(final_str, empty_spaces);
-			final_str = ft_strjoin(final_str, ptr);
 		}
 	}
 	else
 		final_str = ft_strdup(ptr);
+	free(ptr);
 	return (final_str);
 }
 
@@ -838,15 +898,16 @@ char	*ft_ptr_precision(char *ptr, int precision, int empty_spaces)
 	{
 		while (empty_spaces > 0)
 		{
-			final_str = ft_strjoin("0", final_str);
+			final_str = ft_strjoin_free_s2("0", final_str);
 			empty_spaces--;
 		}
 		ptr = ft_strsub(ptr, 2, (int)ft_strlen(ptr));
-		final_str = ft_strjoin(final_str, ptr);
-		final_str = ft_strjoin("0x", final_str);
+		final_str = ft_strjoin_free_s1(final_str, ptr);
+		final_str = ft_strjoin_free_s2("0x", final_str);
 	}
 	else
 		final_str = ft_strdup(ptr);
+	free(ptr);
 	return (final_str);
 }
 
@@ -885,7 +946,7 @@ int	conv_p(va_list *ap, char *flags_collector, char conversion)
 	ptr = va_arg(*ap, void*);
 	final_ptr = ft_itoa_hex((uintptr_t)ptr, 16, conversion);
 	if (flags_collector)
-	final_ptr = ft_strjoin("0x", final_ptr);
+	final_ptr = ft_strjoin_free_s2("0x", final_ptr);
 		final_ptr = ft_ptr_manager(final_ptr, flags_collector);
 	ft_putstr(final_ptr);
 	len = ft_strlen(final_ptr);
@@ -948,23 +1009,32 @@ char	*ft_itoa_dibase(long long int num, int base)
 char	*di_width_flags(char *flags, long long int check_num, int width,
 char *final_num)
 {
+	char	*final_num2;
+
+	final_num2 = NULL;
 	if (ft_strchr(flags, '+') && !ft_iszero(flags) && !ft_strchr(flags, '.')
 	&& check_num >= 0)
 	{
 		final_num = ft_strsub(final_num, 1, width);
-		final_num = ft_strjoin(final_num, "+");
+		final_num2 = ft_strjoin_free_s2("+", final_num);
 	}
 	else if ((ft_strchr(flags, '+') || ft_strchr(flags, ' ')) &&
-	!ft_strchr(flags, '.')
-	&& ft_iszero(flags) && check_num >= 0)
+	!ft_strchr(flags, '.') && ft_iszero(flags) && check_num >= 0)
 	{
 		final_num = ft_strsub(final_num, 1, width);
 		if (ft_strchr(flags, '+'))
-			final_num = ft_strjoin("+", final_num);
+			final_num2 = ft_strjoin_free_s2("+", final_num);
 		else if (ft_strchr(flags, ' ') && !ft_iszero(flags))
-			final_num = ft_strjoin(" ", final_num);
+			final_num2 = ft_strjoin_free_s2(" ", final_num);
+		else if (ft_strchr(flags, ' '))
+			final_num2 = ft_strjoin_free_s2(" ", final_num);
+		}
+	else
+	{
+		final_num2 = ft_strdup(final_num);
+		free(final_num);
 	}
-	return (final_num);
+	return (final_num2);
 }
 
 char	*di_width_minusflag(char *final_num, char *print_num, char *flags,
@@ -973,31 +1043,37 @@ long long int check_num, int empty_spaces)
 	final_num = ft_strcpy(final_num, print_num);
 	if (ft_strchr(flags, '+') && !ft_strchr(flags, '.'))
 	{
-		final_num = ft_strjoin("+", final_num);
+		final_num = ft_strjoin_free_s2("+", final_num);
 		empty_spaces--;
 	}
 	if (ft_strchr(flags, ' ') && !ft_strchr(flags, '.') && check_num >= 0)
 	{
-		final_num = ft_strjoin(" ", final_num);
+		final_num = ft_strjoin_free_s2(" ", final_num);
 		empty_spaces--;
 	}
 	while (empty_spaces-- > 0)
-		final_num = ft_strjoin(final_num, " ");
+		final_num = ft_strjoin_free_s1(final_num, " ");
 	return (final_num);
 }
 
 char	*ft_di_negative_num(char *final_num, char *print_num, char *flags,
-long long int check_num, int empty_spaces, int width)
+long long int check_num, int width, int empty_spaces)
 {
-	if ((ft_iszero(flags) || ft_strchr(flags, '+')) && check_num < 0)
-	{
-		final_num = ft_strjoin("-", final_num);
-		print_num = ft_strsub(print_num, 1, ft_strlen(print_num));
-	}
+ 	char	*final_num2;
+
 	final_num = dio_width_emptyspaces(empty_spaces, flags, final_num);
-	final_num = di_width_flags(flags, check_num, width, final_num);
-	final_num = ft_strjoin(final_num, print_num);
-	return (final_num);
+	final_num2 = di_width_flags(flags, check_num, width, final_num);
+	if (check_num < 0 && ft_strchr(flags, '.'))
+		final_num2 = ft_strjoin_free_s1(final_num2, "-");
+	else
+		final_num2 = ft_strjoin_free_s2("-", final_num2);
+	//printf("final num2 is %s\n", final_num2);
+	//printf("Print num is %s\n", print_num);
+	//final_num2 = final_num3;
+	print_num = ft_strsub(print_num, 1, ft_strlen(print_num));
+	final_num2 = ft_strjoin_free_s2(final_num2, print_num);
+	//printf("Final num = <<%s>>\n", final_num2);
+	return (final_num2);
 }
 
 char	*ft_di_width(char *print_num, long long int check_num, char *flags,
@@ -1008,6 +1084,7 @@ int width)
 	int		checker;
 	
 	checker = 0;
+	//printf("Heerreeee\n");
 	if ((int)ft_strlen(print_num) <= width)
 	{
 		checker = 1;
@@ -1015,15 +1092,26 @@ int width)
 		final_num = ft_strnew(width);
 		if (ft_strchr(flags, '-'))
 			final_num = di_width_minusflag(final_num, print_num, flags, check_num, empty_spaces);
+		else if ((ft_iszero(flags) || ft_strchr(flags, '+')) && check_num < 0)
+		{
+			
+			final_num = ft_di_negative_num(final_num, print_num, flags, check_num, width, empty_spaces);
+		}
 		else
-			final_num = ft_di_negative_num(final_num, print_num, flags, check_num, empty_spaces, width);
+		{
+			final_num = dio_width_emptyspaces(empty_spaces, flags, final_num);
+			final_num = di_width_flags(flags, check_num, width, final_num);
+			final_num = ft_strjoin_free_s1(final_num, print_num);
+		}
 	}
 	else
+	{
 		final_num = ft_strdup(print_num);
+		free(print_num);
+	}
 	if (ft_strchr(flags, ' ') && !ft_strchr(flags, '.') && check_num >= 0
 	&& checker == 0)
-		final_num = ft_strjoin(" ", final_num);
-	free(print_num);
+		final_num = ft_strjoin_free_s2(" ", final_num);
 	return (final_num);
 }
 
@@ -1040,18 +1128,18 @@ char	*ft_di_precision(char *print_num, char *flags, int precision, long long int
 		zeroed_spaces = precision - ft_strlen(print_num);
 		while (zeroed_spaces > 0)
 		{
-			final_num = ft_strjoin("0", final_num);
+			final_num = ft_strjoin_free_s2("0", final_num);
 			zeroed_spaces--;
 		}
-		final_num = ft_strjoin(final_num, print_num);
+		final_num = ft_strjoin_free_s1(final_num, print_num);
 	}
 	else
 		final_num = ft_strdup(print_num);
  	if (ft_strchr(flags, '+') && check_num >= 0)
-		final_num = ft_strjoin("+", final_num);
+		final_num = ft_strjoin_free_s2("+", final_num);
 	if (ft_strchr(flags, ' ') && !ft_strchr(flags, '+') && check_num >= 0)
-		final_num = ft_strjoin(" ", final_num);
-	return (final_num);	
+		final_num = ft_strjoin_free_s2(" ", final_num);
+	return (final_num);
 }
 
 char	*di_prec_not_zero(char *print_num, long long int check_num, 
@@ -1059,24 +1147,27 @@ int width, int precision)
 {
 	int	i;
 	int	diff;
+	char	*print_num2;
 
 	diff = 0;
 	i = 0;
 	diff = width - precision;
-	print_num = ft_strsub(print_num, diff, ft_strlen(print_num));
+	print_num2 = ft_strsub(print_num, diff, ft_strlen(print_num));
+	//printf("OVER HERE print num is %s\n", print_num);
 	while (diff > 0)
 	{
 		if (check_num < 0 && i == 0)
 		{
-			print_num = ft_strjoin("-", print_num);
+			print_num2 = ft_strjoin_free_s2("-", print_num2);
 			i = 1;
 			diff--;
 		}
 		if (diff > 0)
-			print_num = ft_strjoin(" ", print_num);
+			print_num2 = ft_strjoin_free_s2(" ", print_num2);
 		diff--;
 	}
-	return (print_num);
+	free(print_num);
+	return (print_num2);
 }
 
 char	*di_width_above_prec(char *print_num, long long int check_num, 
@@ -1104,12 +1195,16 @@ char *flags, int width, int precision)
 char	*di_manage_precision(char *print_num, long long int check_num, 
 char *flags, int precision)
 {
+	char	*print_num2;
+	
+	print_num2 = NULL;
 	if (ft_strchr(print_num, '-'))
 		print_num = ft_strsub(print_num, 1, ft_strlen(print_num));
-	print_num = ft_di_precision(print_num, flags, precision, check_num);
+	print_num2 = ft_di_precision(print_num, flags, precision, check_num);
 	if (check_num < 0)
-		print_num = ft_strjoin("-", print_num);
-	return (print_num);
+		print_num2 = ft_strjoin_free_s2("-", print_num2);
+	free(print_num);
+	return (print_num2);
 }
 
 char	*ft_di_manager(char *print_num, long long int check_num, char *flags)
@@ -1128,7 +1223,7 @@ char	*ft_di_manager(char *print_num, long long int check_num, char *flags)
 		precision = ft_atoi(ft_strchr(flags, '.') + 1);
 		print_num = di_manage_precision(print_num, check_num, flags, precision);
 	}
-	if (ft_strchr(flags, '-') || ft_isdigit(flags[i]) || ft_iszero(flags))
+	if (ft_strchr(flags, '-') || (ft_isdigit(flags[i]) && flags[0] != '.') || ft_iszero(flags))
 	{
 		if (ft_isdigit(flags[i]) != 1)
 			i++;
@@ -1136,10 +1231,10 @@ char	*ft_di_manager(char *print_num, long long int check_num, char *flags)
 		print_num = ft_di_width(print_num, check_num, flags, width);
 	}
 	if (ft_strchr(flags, '+') && check_num >= 0 && !ft_strchr(print_num, '+'))
-		print_num = ft_strjoin("+", print_num);
+		print_num = ft_strjoin_free_s2("+", print_num);
 	else if (ft_strchr(flags, ' ') && check_num >= 0 &&
 	!ft_strchr(print_num, ' '))
-		print_num = ft_strjoin(" ", print_num);
+		print_num = ft_strjoin_free_s2(" ", print_num);
 	print_num = di_width_above_prec(print_num, check_num, flags, width, precision);
 	return (print_num);
 }
@@ -1154,6 +1249,7 @@ int	conv_d_i(va_list *ap, char *flags_collector)
 	check_num = ft_di_datatype(ap, flags_collector);
 	print_num = ft_itoa_dibase(check_num, 10);
 	print_num = ft_di_manager(print_num, check_num, flags_collector);
+	while(1);
 	ft_putstr(print_num);
 	len = ft_strlen(print_num);
 	free(print_num);
@@ -1276,10 +1372,10 @@ char	*ft_f_precision(char *print_num, int precision, char *flags)
 			empty_spaces--;
 		while (empty_spaces > 0)
 		{
-			final_num = ft_strjoin(" ", final_num);
+			final_num = ft_strjoin_free_s2(" ", final_num);
 			empty_spaces--;
 		}
-		final_num = ft_strjoin(final_num, print_num);
+		final_num = ft_strjoin_free_s2(print_num, final_num);
 	}
 	else
 		final_num = ft_strdup(print_num);
@@ -1294,9 +1390,9 @@ char	*f_width_emptyspcs(char *final_num, char *flags, int empty_spaces)
 	while (empty_spaces > 0)
 	{
 		if (ft_iszero(flags))
-			final_num = ft_strjoin("0", final_num);
+			final_num = ft_strjoin_free_s2("0", final_num);
 		else
-			final_num = ft_strjoin(" ", final_num);
+			final_num = ft_strjoin_free_s2(" ", final_num);
 		empty_spaces--;
 	}
 	return (final_num);
@@ -1320,10 +1416,10 @@ char	*ft_f_width(char *print_num, long double check_num, char *flags, int width)
 		final_num = f_width_emptyspcs(final_num, flags, empty_spaces);
 		if (ft_strchr(print_num, '-') && ft_strchr(final_num, '0'))
 				print_num = ft_strsub(print_num, 1, ft_strlen(print_num));
-		final_num = ft_strjoin(final_num, print_num);
+		final_num = ft_strjoin_free_s2(print_num, final_num);
 		if (check_num < 0 && ft_strchr(final_num, '0') &&
 		!ft_strchr(final_num, '-'))
-			final_num = ft_strjoin("-", final_num);
+			final_num = ft_strjoin_free_s2("-", final_num);
 	}
 	else
 		final_num = ft_strdup(print_num);
@@ -1355,13 +1451,13 @@ char	*manage_f_width_neg(char *print_num, char *flags, int width)
 		print_num = ft_strsub(print_num, 1, (int)ft_strlen(print_num));
 	while (*print_num == ' ')
 		print_num++;	
-	print_num = ft_strjoin("-", print_num);
+	print_num = ft_strjoin_free_s2("-", print_num);
 	len_printnum = (int)ft_strlen(print_num);
 	if (len_printnum < width)
 	{
 		while (len_printnum < width)
 		{
-			print_num = ft_strjoin(" ", print_num);
+			print_num = ft_strjoin_free_s2(" ", print_num);
 			width--;
 		}
 	}
@@ -1384,16 +1480,16 @@ int precision, int is_neg)
 	ft_strcmp(print_num, "nan") != 0)
 		print_num = ft_f_precision(print_num, precision, flags);
 	if (check_num < 0)
-			print_num = ft_strjoin("-", print_num);
+			print_num = ft_strjoin_free_s2("-", print_num);
 	if (ft_strchr(flags, '-') || ft_isdigit(flags[i]) || ft_iszero(flags))
 		print_num = manage_f_width(print_num, check_num, flags, width, 
 		precision, i);
 	if (is_neg == 1 && !ft_strchr(print_num, '-'))
 		print_num = manage_f_width_neg(print_num, flags, width);
 	if (ft_strchr(flags, '+') && is_neg == 0)
-		print_num = ft_strjoin("+", print_num);
+		print_num = ft_strjoin_free_s2("+", print_num);
 	if (ft_strchr(flags, ' ') && is_neg == 0 && !ft_strchr(flags, '+'))
-		print_num = ft_strjoin(" ", print_num);
+		print_num = ft_strjoin_free_s2(" ", print_num);
 	return (print_num);
 }
 

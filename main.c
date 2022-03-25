@@ -26,7 +26,7 @@ int main ()
 	len2 = printf(str, 0); */
 	//ft_printf("%10d\n", 42);
 	//char *str = "%0-8.5x";
-  ft_printf("\\n");
+/*   ft_printf("\\n");
   ft_printf("%%\\n");
   ft_printf("%d\\n", 42);
   ft_printf("%d%d\\n", 42, 41);
@@ -55,7 +55,9 @@ int main ()
   ft_printf("%S\\n", L"ݗݜशব");
   ft_printf("%s%s\\n", "test", "test");
   ft_printf("%s%s%s\\n", "test", "test", "test");
-  ft_printf("%C\\n", 15000);
+  ft_printf("%C\\n", 15000); */
+  char *str = "%015d\\n";
+  ft_printf(str, 54321);
 	//printf("{%-12p}", &strlen);
 	//printf("%30d", 10000);
 	//double y = 0;
