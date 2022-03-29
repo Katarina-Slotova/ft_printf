@@ -6,7 +6,7 @@
 #    By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/11/01 08:21:51 by kslotova          #+#    #+#              #
-#    Updated: 2021/12/02 09:38:10 by kslotova         ###   ########.fr        #
+#    Updated: 2022/03/29 17:24:00 by kslotova         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,11 @@ SOURCES = ft_atoi.c ft_bzero.c ft_isalnum.c ft_isalpha.c ft_isascii.c \
 	ft_strsplit.c ft_strstr.c ft_strsub.c ft_strtrim.c ft_tolower.c \
 	ft_toupper.c ft_lstnew.c ft_lstadd.c ft_lstdel.c ft_lstiter.c \
 	ft_lstdelone.c ft_lstmap.c ft_strcapital.c ft_create_node.c \
-	ft_lstback.c ft_swap.c ft_lstsize.c
+	ft_lstback.c ft_swap.c ft_lstsize.c ft_strcharjoin.c ft_strjoin_free_s1.c \
+	ft_strjoin_free_s2.c ft_numlen_base_u.c ft_base_u.c ft_itoa_base_u.c \
+	ft_base_hex.c ft_ptrlen.c ft_numlen_base.c ft_base.c ft_itoa_base.c \
+	ft_round.c ft_itoa_float.c ft_len_double.c ft_x_to_power_n.c \
+	ft_is_negative.c
 
 OBJECTS = $(SOURCES:.c=.o)
 

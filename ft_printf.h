@@ -6,7 +6,7 @@
 /*   By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:13:03 by kslotova          #+#    #+#             */
-/*   Updated: 2022/03/29 11:16:59 by kslotova         ###   ########.fr       */
+/*   Updated: 2022/03/29 16:11:27 by kslotova         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,5 @@ int		conv_percent(t_specs *utils);
 int		conversion_solver(const char *format, va_list *ap, t_specs *utils);
 int		is_conversion(char c);
 int		is_flag(char c);
-char	*ft_strcharjoin(char *old_str, char c);
 
 #endif

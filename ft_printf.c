@@ -6,25 +6,12 @@
 /*   By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by kslotova          #+#    #+#             */
-/*   Updated: 2022/03/29 15:58:01 by kslotova         ###   ########.fr       */
+/*   Updated: 2022/03/29 17:32:58 by kslotova         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 #include <stdio.h> // REMOVE THIS LINE
-
-char	*ft_strcharjoin(char *old_str, char c)
-{
-	char	*new_str;
-	int		i;
-
-	new_str = ft_strnew(ft_strlen(old_str) + 2);
-	i = ft_strlen(new_str);
-	ft_bzero(new_str, i);
-	new_str = ft_strcpy(new_str, old_str);
-	new_str[i] = c;
-	return (new_str);
-}
 
 int	is_conversion(char c)
 {
@@ -119,6 +106,14 @@ long long int	ft_di_datatype(va_list *ap, t_specs *utils)
 		return va_arg(*ap, int);
 }
 
+long double	ft_f_datatype(va_list *ap, t_specs *utils)
+{
+	if (ft_strchr(utils->flags, 'L'))
+		return va_arg(*ap, long double);
+	else
+		return va_arg(*ap, double);
+}
+
 int	ft_iszero(t_specs *utils)
 {
 	int	i;
@@ -139,62 +134,6 @@ int	ft_iszero(t_specs *utils)
 		i++;
 	}
 	return (0);
-}
-
-char	*ft_strjoin_free_s1(char *s1, char *s2)
-{
-	unsigned int	i;
-	unsigned int	j;
-	char			*ret;
-
-	ret = ft_strnew(ft_strlen(s1) + ft_strlen(s2));
-	if (s1 && s2)
-	{
-		if (ret != NULL)
-		{
-			i = 0;
-			j = 0;
-			while (s1[i])
-			{
-				ret[i] = s1[i];
-				i++;
-			}
-			while (s2[j])
-				ret[i++] = s2[j++];
-			ret[i] = '\0';
-			free(s1);
-			return (ret);
-		}
-	}
-	return (NULL);
-}
-
-char	*ft_strjoin_free_s2(char *s1, char *s2)
-{
-	unsigned int	i;
-	unsigned int	j;
-	char			*ret;
-
-	ret = ft_strnew(ft_strlen(s1) + ft_strlen(s2));
-	if (s1 && s2)
-	{
-		if (ret != NULL)
-		{
-			i = 0;
-			j = 0;
-			while (s1[i])
-			{
-				ret[i] = s1[i];
-				i++;
-			}
-			while (s2[j])
-				ret[i++] = s2[j++];
-			ret[i] = '\0';
-			free(s2);
-			return (ret);
-		}
-	}
-	return (NULL);
 }
 
 char	*dio_width_emptyspaces(t_specs *utils, char *final_num)
@@ -434,50 +373,6 @@ int	conv_s(va_list *ap, t_specs *utils)
 
 ////////////////////////////////////////////CONV_O////////////////////////////////////////////////////////////////
 
-int	ft_numlen_base_u(unsigned long long int num, int base)
-{
-	int	len;
-	
-	len = 1;
-	while (num / base > 0)
-	{
-		num = num / base;
-		len++;
-	}
-	return (len);
-}
-
-char	ft_base_u(unsigned long long int num, int base)
-{
-	char	*max_base_chars;
-	int		i;
-
-	max_base_chars = "0123456789";
-	i = num % base;
-	return (max_base_chars[i]);
-}
-
-char	*ft_itoa_base_u(unsigned long long int num, int base)
-{
-	char	*str;
-	int		i;
-
-	if (base < 2 || base > 16)
-		return (NULL);
-	i = ft_numlen_base_u(num, base);
-	str = ft_strnew(i);
-	if (!str)
-		return (NULL);
-	str[i--] = '\0';
-	while (i >= 0 && str[i] != '-')
-	{
-		str[i] = ft_base_u(num, base);
-		num = num / base;
-		i--;
-	}
-	return (str);
-}
-
 char	*ft_o_width(char *print_num, t_specs *utils)
 {
 	char	*final_num;
@@ -585,27 +480,6 @@ int	conv_o(va_list *ap, t_specs *utils)
 
 ////////////////////////////////////////////CONV_U////////////////////////////////////////////////////////////////
 
-char	*ft_itoa_dbase_u(unsigned long long int num, int base)
-{
-	char	*str;
-	int		i;
-
-	if (base < 2 || base > 16)
-		return (NULL);
-	i = ft_numlen_base_u(num, base);
-	str = ft_strnew(i);
-	if (!str)
-		return (NULL);
-	str[i--] = '\0';
-	while (i >= 0 && str[i] != '-')
-	{
-		str[i] = ft_base_u(num, base);
-		num = num / base;
-		i--;
-	}
-	return (str);
-}
-
 char	*ft_u_manager(char *print_num, t_specs *utils)
 {
 	int	i;
@@ -639,7 +513,7 @@ int	conv_u(va_list *ap, t_specs *utils)
 
 	len = 0;
 	check_num = ft_oux_datatype(ap, utils);
-	print_num = ft_itoa_dbase_u(check_num, 10);
+	print_num = ft_itoa_base_u(check_num, 10);
 	print_num = ft_u_manager(print_num, utils);
 	ft_putstr(print_num);
 	len = ft_strlen(print_num);
@@ -648,19 +522,6 @@ int	conv_u(va_list *ap, t_specs *utils)
 }
 
 ////////////////////////////////////////////CONV_x_X////////////////////////////////////////////////////////////////
-
-char	ft_base_hex(unsigned int num, int base, char conversion)
-{
-	char	*max_base_chars;
-	int		i;
-
-	if (conversion == 'X')
-		max_base_chars = "0123456789ABCDEF";
-	else
-		max_base_chars = "0123456789abcdef";
-	i = num % base;
-	return (max_base_chars[i]);
-}
 
 char	*ft_itoa_hex(uintmax_t num, int base, t_specs *utils)
 {
@@ -797,19 +658,6 @@ int	conv_x(va_list *ap, t_specs *utils)
 
 ////////////////////////////////////////////CONV_P////////////////////////////////////////////////////////////////
 
-int	ft_ptrlen(uintptr_t print_ptr)
-{
-	int	i;
-
-	i = 0;
-	while (print_ptr > 0)
-	{
-		print_ptr = print_ptr / 16;
-		i++;
-	}
-	return (i);
-}
-
 char	*ft_manage_ptr_emptyspcs(char *final_str, t_specs *utils)
 {
 	while (utils->empty_spaces > 0)
@@ -913,57 +761,8 @@ int	conv_p(va_list *ap, t_specs *utils)
 
 ////////////////////////////////////////////CONV_D_I////////////////////////////////////////////////////////////////
 
-int	ft_numlen_dibase(long long int num, int base)
-{
-	int	len;
-	
-	len = 0;
-	if (num < 0 || num == 0)
-		len++;
-	while (num)
-	{
-		num = num / base;
-		len++;
-	}
-	return (len);
-}
-
-char	ft_base(long long int num, int base)
-{
-	char	*max_base_chars;
-	int		i;
-
-	max_base_chars = "0123456789";
-	i = num % base;
-	if (i < 0)
-		i = i * -1;
-	return (max_base_chars[i]);
-}
-
-char	*ft_itoa_dibase(long long int num, int base)
-{
-	char	*str;
-	int		i;
-
-	if (base < 2 || base > 16)
-		return (NULL);
-	i = ft_numlen_dibase(num, base);
-	str = ft_strnew(i);
-	if (!str)
-		return (NULL);
-	if (num < 0)
-		str[0] = '-';
-	str[i--] = '\0';
-	while (i >= 0 && str[i] != '-')
-	{
-		str[i] = ft_base(num, base);
-		num = num / base;
-		i--;
-	}
-	return (str);
-}
-
-char	*di_width_flags(char *final_num, long long int check_num, t_specs *utils)
+char	*di_width_flags(char *final_num, long long int check_num,
+t_specs *utils)
 {
 	char	*final_num2;
 
@@ -1134,7 +933,7 @@ t_specs *utils)
 	if ((utils->precision < utils->width) && ft_strchr(utils->flags, '.') &&
 	!ft_strchr(utils->flags, '+') 
 	&& !ft_strchr(utils->flags, '-') &&
-	(int)ft_numlen_dibase(check_num, 10) < utils->precision)
+	(int)ft_numlen_base(check_num, 10) < utils->precision)
 		print_num = di_prec_not_zero(print_num, check_num, utils);
 	else if (utils->precision == 0 && utils->width > utils->precision &&
 	ft_strchr(utils->flags, '.'))
@@ -1208,7 +1007,7 @@ int	conv_d_i(va_list *ap, t_specs *utils)
 
 	len = 0;
 	check_num = ft_di_datatype(ap, utils);
-	print_num = ft_itoa_dibase(check_num, 10);
+	print_num = ft_itoa_base(check_num, 10);
 	print_num = ft_di_manager(print_num, check_num, utils);
 	ft_putstr(print_num);
 	len = ft_strlen(print_num);
@@ -1234,85 +1033,6 @@ char	*ft_cut_leftover(char *str, t_specs *utils)
 		i++;
 	final_str = ft_strsub(str, 0, i);
 	free(str);
-	return (final_str);
-}
-
-long double	ft_round(long double check_num, int precision)
-{
-	long double	rounded_num;
-	long double	rounder;
-
-	rounder = .5;
-	while (precision > 0)
-	{
-		rounder = rounder / 10;
-		precision--;
-	}
-	if (check_num >= 0)
-		rounded_num = check_num + rounder;
-	else
-		rounded_num = check_num - rounder;
-	return (rounded_num);
-}
-
-static int	ft_len_double(long double n, int precision)
-{
-	int i;
-
-	i = 0;
-	if (n < 0)
-		i++;
-	while (n)
-	{
-		n = n / 10;
-		i++;
-	}
-	return (i + precision + 1);
-}
-
-char	*ft_float_convertor(long double check_num, long long int num,
-int precision)
-{
-	char	*final_str;
-	int		i;
-	int		len;
-
-	i = 1;
-	len = ft_len_double(check_num, precision);
-	final_str = ft_strnew(len);
-	if (!final_str)
-		return (NULL);
-	final_str[0] = '.';
-	if (check_num < 0)
-	{
-		check_num = check_num * -1;
-		num = num * -1;
-	}
-	num = check_num - num;
-	while (i < len)
-	{
-		check_num = check_num * 10;
-		num = check_num;
-		final_str[i] = (num % 10) + '0';
-		check_num = check_num - num;
-		i++;
-	}
-	return (final_str);
-}
-
-char	*ft_itoa_float(long double check_num, int precision)
-{
-	char			*before_point;
-	char			*after_point;
-	char			*final_str;
-	long long int	num;
-
-	num = check_num;
-	before_point = ft_itoa_dibase(num, 10);
-	after_point = ft_float_convertor(check_num, num, precision);
-	final_str = ft_strjoin(before_point, after_point);
-	free(before_point);
-	free(after_point);
 	return (final_str);
 }
 
@@ -1453,40 +1173,12 @@ t_specs *utils)
 	return (print_num);
 }
 
-int	ft_x_to_power_n (int precision)
-{
-    int	i;
-    int	number;
-
-	number = 1;
-	i = 0;
-	while (i < precision)
-	{
-		number *= 10;
-		i++;
-	}
-	return (number);
-}
-
-int		ft_is_negative(double check_num)
-{
-	long long int	*double_to_int;
-	char			sign;
-
-	double_to_int = (long long int*)&check_num;
-	sign = (char)(*double_to_int >> 63);
-	if (sign == 0)
-		return (0);
-	else
-		return (1);
-}
-
 char	*ft_check_inf_nan(char *print_num, long double check_num,
 t_specs *utils)
 {
-	double			x;
-	double			y;
-	double			z;
+	double	x;
+	double	y;
+	double	z;
 
 	x = 1;
 	y = 0;
@@ -1532,10 +1224,11 @@ int	conv_f(va_list *ap, t_specs *utils)
 	is_neg = 0;
 	len = 0;
 	print_num = NULL;
-	if (ft_strchr(utils->flags, 'L'))
+	check_num = ft_f_datatype(ap, utils);
+/* 	if (ft_strchr(utils->flags, 'L'))
 		check_num = va_arg(*ap, long double);
 	else
-		check_num = va_arg(*ap, double);
+		check_num = va_arg(*ap, double); */
 	is_neg = ft_is_negative(check_num);
 	if (ft_strchr(utils->flags, '.'))
 		utils->precision = ft_atoi(ft_strchr(utils->flags, '.') + 1);

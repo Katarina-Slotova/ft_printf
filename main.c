@@ -57,7 +57,7 @@ int main ()
   ft_printf("%s%s%s\\n", "test", "test", "test");
   ft_printf("%C\\n", 15000); */
   //char *str = "%0-8.5u";
-  printf("%0+.5d", 42);
+  ft_printf("%0+.5d", 42);
   //long double my_var = 454423.343242374423425L;
 	//printf("{%-12p}", &strlen);
 	//printf("%30d", 10000);

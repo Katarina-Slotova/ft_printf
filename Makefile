@@ -6,7 +6,7 @@
 #    By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/02/03 13:55:36 by kslotova          #+#    #+#              #
-#    Updated: 2022/03/22 15:37:20 by kslotova         ###   ########.fr        #
+#    Updated: 2022/03/29 17:24:13 by kslotova         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,12 @@ libft/ft_strlcat.c libft/ft_strlen.c libft/ft_strmap.c libft/ft_strmapi.c \
 libft/ft_strncat.c libft/ft_strncmp.c libft/ft_strncpy.c libft/ft_strnequ.c \
 libft/ft_strnew.c libft/ft_strnstr.c libft/ft_strrchr.c libft/ft_strsplit.c \
 libft/ft_strstr.c libft/ft_strsub.c libft/ft_strtrim.c libft/ft_swap.c \
-libft/ft_tolower.c libft/ft_toupper.c
+libft/ft_tolower.c libft/ft_toupper.c libft/ft_strcharjoin.c \
+libft/ft_strjoin_free_s1.c libft/ft_strjoin_free_s2.c libft/ft_numlen_base_u.c \
+libft/ft_base_u.c libft/ft_itoa_base_u.c libft/ft_base_hex.c libft/ft_ptrlen.c \
+libft/ft_numlen_base.c libft/ft_base.c libft/ft_itoa_base.c libft/ft_round.c \
+libft/ft_itoa_float.c libft/ft_len_double.c libft/ft_x_to_power_n.c \
+libft/ft_is_negative.c
 
 LIBOBJECTS = $(LIBSOURCES:.c=.o)
 
