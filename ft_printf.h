@@ -6,7 +6,7 @@
 /*   By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:13:03 by kslotova          #+#    #+#             */
-/*   Updated: 2022/03/22 15:36:49 by kslotova         ###   ########.fr       */
+/*   Updated: 2022/03/29 11:16:59 by kslotova         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,28 @@
 # include <stdarg.h>
 # include "libft/libft.h"
 
-int 	ft_printf(const char *format, ...);
-int		conv_c(va_list *ap, char *flags_collector);
-int		conv_s(va_list *ap, char *flags_collector);
-int		conv_p(va_list *ap, char *flags_collector, char conversion);
-int		conv_d_i(va_list *ap, char *flags_collector);
-int		conv_o(va_list *ap, char *flags_collector);
-int		conv_u(va_list *ap, char *flags_collector);
-int		conv_x(va_list *ap, char *flags_collector, char conversion);
-int		conv_f(va_list *ap, char *flags_collector);
-int		conv_percent(char *flags_collector);
-int		conversion_solver(const char *format, va_list *ap);
+typedef struct t_list
+{
+	char	*flags;
+	int		width;
+	int		precision;
+	int		empty_spaces;
+	char	c;
+}				t_specs;
+
+int		ft_printf(const char *format, ...);
+int		conv_c(va_list *ap, t_specs *utils);
+int		conv_s(va_list *ap, t_specs *utils);
+int		conv_p(va_list *ap, t_specs *utils);
+int		conv_d_i(va_list *ap, t_specs *utils);
+int		conv_o(va_list *ap, t_specs *utils);
+int		conv_u(va_list *ap, t_specs *utils);
+int		conv_x(va_list *ap, t_specs *utils);
+int		conv_f(va_list *ap, t_specs *utils);
+int		conv_percent(t_specs *utils);
+int		conversion_solver(const char *format, va_list *ap, t_specs *utils);
 int		is_conversion(char c);
 int		is_flag(char c);
 char	*ft_strcharjoin(char *old_str, char c);
-
 
 #endif
