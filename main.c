@@ -62,7 +62,69 @@ int main ()
   printf("%0 d", -42);
   printf("% 0d", 42); 
   printf("% 0d", -42); */
-  ft_printf("% d", 2);
+ ft_printf("%7d", -14);
+ /*     ft_printf("FT D:% 8i\n", 42);
+    printf("PF D:% 8i\n\n", 42);
+
+    ft_printf("FT D:% -8i\n", 42);
+    printf("PF D:% -8i\n\n", 42);
+
+   ft_printf("FT D:%+i\n", 42);
+    printf("PF D:%+i\n\n", 42);
+
+
+    ft_printf("FT C: %c\n", 0);
+    printf("PF C: %c\n\n", 0);
+
+    ft_printf("FT D:{%03d}\n", 0);
+    printf("PF D:{%03d}\n\n", 0);
+
+    ft_printf("FT D:{%010.5d}\n", -216);
+    printf("PF D:{%010.5d}\n\n", -216);
+
+
+    ft_printf("FT X: %#2.8x\n", 34);
+    printf("PF X: %#2.8x\n\n", 34);
+    ft_printf("FT X: %#02.8x\n", 42);
+    printf("PF X: %#02.8x\n\n", 42);
+
+
+
+    ft_printf("FT O:%#08o\n", 42);
+    printf("PF O:%#08o\n\n", 42);
+    ft_printf("FT X: %#08.5x\n", 42);
+    printf("PF X: %#08.5x\n\n", 42);
+    ft_printf("FT X: %#8.5x\n", 42);
+    printf("PF X: %#8.5x\n\n", 42);
+
+    ft_printf("FT D: % 0i\n", 0);
+    printf("PF D: % 0i\n\n", 0);
+
+    ft_printf("FT D: % 0i\n", 42);
+    printf("PF D: % 0i\n\n", 42);
+
+
+    
+    ft_printf("FT D: % 08i\n", 42);
+    printf("PF D: % 08i\n\n", 42);
+
+    ft_printf("FT *S:{%.*s}\n", 0, "hello");
+    printf("PF *S:{%.*s}\n\n", 0, "hello");
+
+    ft_printf("FT S:{%.0s}\n", "hello");
+    printf("PF S:{%.0s}\n\n", "hello");
+
+     ft_printf("FT S:{%-5.s}\n","42");
+    printf("PF S:{%-5.s}\n\n","42");
+ */
+/*     ft_printf("FT O:%#-08o\n", 42);
+    printf("PF O:%#-08o\n\n", 42); */
+    
+/*     ft_printf("FT O: %#08.2o\n", 42);
+    printf("PF O: %#08.2o\n\n", 42);
+
+    ft_printf("FT D: %#08d\n", 0);
+    printf("PF D: %#08d\n\n", 0); */
   //ft_printf("%5+d", 42);
   //long double my_var = 454423.343242374423425L;
 	//printf("{%-12p}", &strlen);
@@ -100,3 +162,74 @@ int main ()
 
     return 0;
 }
+
+//int main ()
+//{
+    //ft_printf("FT D:% 8i\n", 42);
+    /* printf("PF D:% 8i\n\n", 42);
+
+    ft_printf("FT D:% -8i\n", 42);
+    printf("PF D:% -8i\n\n", 42);
+
+   ft_printf("FT D:%+i\n", 42);
+    printf("PF D:%+i\n\n", 42);
+
+
+    ft_printf("FT C: %c\n", 0);
+    printf("PF C: %c\n\n", 0);
+
+    ft_printf("FT D:{%03d}\n", 0);
+    printf("PF D:{%03d}\n\n", 0);
+
+    ft_printf("FT D:{%010.5d}\n", -216);
+    printf("PF D:{%010.5d}\n\n", -216);
+
+
+    ft_printf("FT X: %#2.8x\n", 34);
+    printf("PF X: %#2.8x\n\n", 34);
+    ft_printf("FT X: %#02.8x\n", 42);
+    printf("PF X: %#02.8x\n\n", 42);
+
+
+
+    ft_printf("FT O:%#08o\n", 42);
+   printf("PF O:%#08o\n\n", 42);
+    ft_printf("FT X: %#08.5x\n", 42);
+    printf("PF X: %#08.5x\n\n", 42);
+    ft_printf("FT X: %#8.5x\n", 42);
+    printf("PF X: %#8.5x\n\n", 42);
+
+    ft_printf("FT D: % 0i\n", 0);
+    printf("PF D: % 0i\n\n", 0);
+
+    ft_printf("FT D: % 0i\n", 42);
+    printf("PF D: % 0i\n\n", 42);
+
+
+    
+    ft_printf("FT D: % 08i\n", 42);
+    printf("PF D: % 08i\n\n", 42);
+
+    ft_printf("FT *S:{%.*s}\n", 0, "hello");
+    printf("PF *S:{%.*s}\n\n", 0, "hello");
+
+    ft_printf("FT S:{%.0s}\n", "hello");
+    printf("PF S:{%.0s}\n\n", "hello");
+
+    ft_printf("FT *S:{%.*s}\n", -5, "42");
+    printf("PF *S:{%.*s}\n\n", -5, "42");
+
+    ft_printf("FT S:{%-5.s}\n","42");
+    printf("PF S:{%-5.s}\n\n","42");
+
+    ft_printf("FT O:%#-08o\n", 42);
+    printf("PF O:%#-08o\n\n", 42);
+    
+    ft_printf("FT O: %#08.2o\n", 42);
+    printf("PF O: %#08.2o\n\n", 42);
+
+    ft_printf("FT D: %#08d\n", 0);
+    printf("PF D: %#08d\n\n", 0);
+ */
+    //return (0);
+//} 

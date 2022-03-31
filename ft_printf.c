@@ -6,12 +6,11 @@
 /*   By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/03 14:12:28 by kslotova          #+#    #+#             */
-/*   Updated: 2022/03/31 17:28:27 by kslotova         ###   ########.fr       */
+/*   Updated: 2022/03/31 19:04:30 by kslotova         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
-#include <stdio.h> // REMOVE THIS LINE
 
 int	is_flag(char c)
 {
@@ -50,15 +49,15 @@ int	ft_printf(const char *format, ...)
 	i = -1;
 	va_start(ap, format);
 	utils = (t_specs *)malloc(sizeof(t_specs));
+	init_specs(utils);
 	while (format[++i])
 	{
-		if (format[i] == '%' && !utils->in_conversion)
+		if (format[i] == '%' && utils->in_conversion == 0)
 		{
-			init_specs(utils);
 			utils->in_conversion = 1;
 			char_counter += conversion_solver(&format[i], &ap, utils);
 		}
-		else if (!utils->in_conversion)
+		else if (utils->in_conversion == 0)
 			char_counter = ft_print_reg_char(format[i], char_counter);
 		else if (is_conversion(format[i]))
 			utils->in_conversion = 0;
