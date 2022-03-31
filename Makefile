@@ -6,13 +6,15 @@
 #    By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/02/03 13:55:36 by kslotova          #+#    #+#              #
-#    Updated: 2022/03/29 17:24:13 by kslotova         ###   ########.fr        #
+#    Updated: 2022/03/31 16:21:49 by kslotova         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = libftprintf.a
 
-SOURCES = ft_printf.c
+SOURCES = ft_printf.c conv_c.c conv_percent.c conv_s.c conv_d_i.c \
+conv_p.c conv_o.c conv_u.c conv_x.c conv_f.c set_datatype.c helper_functions.c \
+manage_conversion.c f_width.c di_width.c x_hashtag.c
 
 OBJECTS = $(SOURCES:.c=.o)
 

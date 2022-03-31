@@ -6,7 +6,7 @@
 /*   By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/29 17:14:45 by kslotova          #+#    #+#             */
-/*   Updated: 2022/03/29 17:15:04 by kslotova         ###   ########.fr       */
+/*   Updated: 2022/03/31 16:33:31 by kslotova         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	ft_len_double(long double num, int precision)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	if (num < 0)

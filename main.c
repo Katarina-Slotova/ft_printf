@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "ft_printf.h"
 #include <limits.h>
+#include <float.h>
 
 int main ()
 {
@@ -57,7 +58,12 @@ int main ()
   ft_printf("%s%s%s\\n", "test", "test", "test");
   ft_printf("%C\\n", 15000); */
   //char *str = "%0-8.5u";
-  ft_printf("%0+.5d", 42);
+ /*  printf("%0 d", 42); 
+  printf("%0 d", -42);
+  printf("% 0d", 42); 
+  printf("% 0d", -42); */
+  ft_printf("% d", 2);
+  //ft_printf("%5+d", 42);
   //long double my_var = 454423.343242374423425L;
 	//printf("{%-12p}", &strlen);
 	//printf("%30d", 10000);

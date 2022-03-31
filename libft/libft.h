@@ -6,7 +6,7 @@
 /*   By: kslotova <kslotova@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/01 08:42:46 by kslotova          #+#    #+#             */
-/*   Updated: 2022/03/29 17:24:32 by kslotova         ###   ########.fr       */
+/*   Updated: 2022/03/31 16:34:07 by kslotova         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ char		*ft_itoa_base(long long int num, int base);
 long double	ft_round(long double check_num, int precision);
 char		*ft_itoa_float(long double check_num, int precision);
 int			ft_len_double(long double num, int precision);
-int			ft_x_to_power_n (int precision);
+int			ft_x_to_power_n(int precision);
 int			ft_is_negative(double check_num);
 
 #endif
